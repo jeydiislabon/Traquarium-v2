@@ -1,5 +1,5 @@
 # pages/history_page.py
-"""History page — displays all readings with NH3/toxicity columns,
+"""History page -- displays all readings with NH3/toxicity columns,
    edit/delete backed by SQLite via ReadingManager."""
 
 from PyQt6.QtWidgets import (
@@ -89,7 +89,7 @@ COL_NH3  = 5
 COL_TOX  = 6
 
 HEADERS = ["Timestamp", "Tank Name", "TAN (mg/L)", "pH",
-           "Temp (°C)", "NH₃ (mg/L)", "Toxicity"]
+           "Temp (degC)", "NH3 (mg/L)", "Toxicity"]
 
 # Toxicity row colours (background)
 TOX_COLORS = {
@@ -115,7 +115,7 @@ class HistoryPage(AquaPage):
         top_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.search_input = InputFieldFactory.create_search_input(
-            "Search by tank name…", QFont("Segoe UI", 11))
+            "Search by tank name...", QFont("Segoe UI", 11))
         self.search_input.setFixedWidth(260)
         self.search_input.textChanged.connect(self.live_search)
 
@@ -161,9 +161,9 @@ class HistoryPage(AquaPage):
             self.table.setItemDelegateForColumn(col, delegate)
 
         # ----------------------------------------------------------------
-        # Dropdown — detail panel
+        # Dropdown -- detail panel
         # ----------------------------------------------------------------
-        self.dropdown_button = QPushButton("Show Details ▼")
+        self.dropdown_button = QPushButton("Show Details")
         self.dropdown_button.setCheckable(True)
         self.dropdown_button.clicked.connect(self.toggle_dropdown)
         self.dropdown_button.setStyleSheet("""
@@ -288,7 +288,7 @@ class HistoryPage(AquaPage):
         visible = not self.dropdown_frame.isVisible()
         self.dropdown_frame.setVisible(visible)
         self.dropdown_button.setText(
-            "Hide Details ▲" if visible else "Show Details ▼")
+            "Hide Details" if visible else "Show Details")
         if visible:
             row = self.table.currentRow()
             self.update_dropdown_tables(row)
@@ -385,7 +385,7 @@ class HistoryPage(AquaPage):
             return
         self.is_editing = True
         self.edited_row = row
-        self.edit_button.setText("❌ Cancel")
+        self.edit_button.setText("Cancel")
         from ui.styles import DANGER_BUTTON_STYLE
         self.edit_button.setStyleSheet(DANGER_BUTTON_STYLE)
         self.save_button.setVisible(True)
@@ -404,7 +404,7 @@ class HistoryPage(AquaPage):
         QMessageBox.information(
             self, "Edit Mode",
             "Double-click Tank Name, TAN, pH, or Temperature to edit.\n"
-            "NH₃ and Toxicity are recalculated automatically on Save.")
+            "NH3 and Toxicity are recalculated automatically on Save.")
 
     def cancel_edit_mode(self):
         if self.edited_row >= 0:
@@ -437,11 +437,11 @@ class HistoryPage(AquaPage):
         if not name:
             QMessageBox.warning(self, "Invalid", "Tank name cannot be empty."); return
         if not (TAN_MIN <= tan <= TAN_MAX):
-            QMessageBox.warning(self, "Out of range", f"TAN must be {TAN_MIN}–{TAN_MAX}."); return
+            QMessageBox.warning(self, "Out of range", f"TAN must be {TAN_MIN}-{TAN_MAX}."); return
         if not (PH_MIN <= ph <= PH_MAX):
-            QMessageBox.warning(self, "Out of range", f"pH must be {PH_MIN}–{PH_MAX}."); return
+            QMessageBox.warning(self, "Out of range", f"pH must be {PH_MIN}-{PH_MAX}."); return
         if not (TEMP_MIN <= temp <= TEMP_MAX):
-            QMessageBox.warning(self, "Out of range", f"Temperature must be {TEMP_MIN}–{TEMP_MAX}."); return
+            QMessageBox.warning(self, "Out of range", f"Temperature must be {TEMP_MIN}-{TEMP_MAX}."); return
 
         try:
             result = AmmoniaEngine.calculate(tan, ph, temp)
@@ -472,7 +472,7 @@ class HistoryPage(AquaPage):
         if hasattr(parent, "graph_page"):
             parent.graph_page.update_graph(self.manager.get_all())
 
-        QMessageBox.information(self, "Saved", "Reading updated and NH₃ recalculated.")
+        QMessageBox.information(self, "Saved", "Reading updated and NH3 recalculated.")
         self.cancel_edit_mode()
 
     # ----------------------------------------------------------------

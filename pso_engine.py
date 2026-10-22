@@ -15,7 +15,7 @@ Objective:
 
 Dilution model (single partial water change):
     NH3_after = NH3_before * (1 - c)
-    where c ∈ [0, 1] is the fractional volume of water replaced.
+    where c in [0, 1] is the fractional volume of water replaced.
 
 PSO hyperparameters (from paper Section 2.1.2):
     Swarm size  : 30 particles
@@ -35,7 +35,7 @@ from typing import List
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
-NH3_SAFE_THRESHOLD = 0.02   # mg/L — Safe level (Emerson et al., 1975)
+NH3_SAFE_THRESHOLD = 0.02   # mg/L -- Safe level (Emerson et al., 1975)
 
 # PSO hyperparameters
 SWARM_SIZE     = 30

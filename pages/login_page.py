@@ -1,4 +1,4 @@
-"""Login page — SENSE-inspired split layout (left brand panel + right form)"""
+"""Login page -- SENSE-inspired split layout (left brand panel + right form)"""
 
 from PyQt6.QtWidgets import (
     QWidget, QHBoxLayout, QVBoxLayout, QLabel, QFrame, QSizePolicy
@@ -22,7 +22,7 @@ class LoginPage(QWidget):
         main_layout.setSpacing(0)
 
         # ----------------------------------------------------------------
-        # LEFT — brand panel (teal/blue gradient)
+        # LEFT -- brand panel (teal/blue gradient)
         # ----------------------------------------------------------------
         self.left_panel = QFrame()
         self.left_panel.setMinimumWidth(420)
@@ -85,7 +85,7 @@ class LoginPage(QWidget):
         left_layout.addWidget(tagline)
 
         # ----------------------------------------------------------------
-        # RIGHT — form panel (white / light)
+        # RIGHT -- form panel (white / light)
         # ----------------------------------------------------------------
         right_panel = QFrame()
         right_panel.setMinimumWidth(400)
@@ -118,7 +118,7 @@ class LoginPage(QWidget):
         right_layout.addWidget(un_label)
         right_layout.addSpacing(6)
 
-        self.username_input = QLabel.__new__(QLabel)  # placeholder — replaced below
+        self.username_input = QLabel.__new__(QLabel)  # placeholder -- replaced below
         from PyQt6.QtWidgets import QLineEdit
         self.username_input = QLineEdit()
         self.username_input.setPlaceholderText("Enter your username")

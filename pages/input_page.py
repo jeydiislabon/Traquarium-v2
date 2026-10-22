@@ -1,5 +1,5 @@
 # pages/input_page.py
-"""Input page — TAN, pH, Temperature -> AmmoniaEngine -> computation result panel."""
+"""Input page -- TAN, pH, Temperature -> AmmoniaEngine -> computation result panel."""
 
 from PyQt6.QtWidgets import (
     QLabel, QLineEdit, QHBoxLayout, QVBoxLayout,
@@ -56,15 +56,15 @@ class InputPage(AquaPage):
         self.name_input = QLineEdit()
         self.name_input.setPlaceholderText("Tank / Profile name  (e.g. Main Tank)")
 
-        # Required parameters  ── validator uses Intermediate for partial input
+        # Required parameters - validator uses Intermediate for partial input
         self.tan_input  = InputFieldFactory.create_validated_input(
-            f"TAN — Total Ammonia Nitrogen  (0 – {TAN_MAX} mg/L)",
+            f"TAN -- Total Ammonia Nitrogen  (0 - {TAN_MAX} mg/L)",
             TAN_MIN, TAN_MAX, 4)
         self.ph_input   = InputFieldFactory.create_validated_input(
-            f"pH  ({PH_MIN} – {PH_MAX})",
+            f"pH  ({PH_MIN} - {PH_MAX})",
             PH_MIN, PH_MAX, 2)
         self.temp_input = InputFieldFactory.create_validated_input(
-            f"Temperature  ({TEMP_MIN} – {TEMP_MAX} degrees C)",
+            f"Temperature  ({TEMP_MIN} - {TEMP_MAX} degrees C)",
             TEMP_MIN, TEMP_MAX, 2)
 
         for field in (self.name_input, self.tan_input, self.ph_input, self.temp_input):
@@ -107,12 +107,12 @@ class InputPage(AquaPage):
         grid.setSpacing(8)
         grid.setColumnStretch(1, 1)
 
-        self._lbl_pka   = self._make_val_label("—")
-        self._lbl_frac  = self._make_val_label("—")
-        self._lbl_nh3   = self._make_val_label("—", big=True)
-        self._lbl_tox   = self._make_val_label("—", big=True)
-        self._lbl_infer = self._make_val_label("—")
-        self._lbl_inst  = QLabel("—")
+        self._lbl_pka   = self._make_val_label("--")
+        self._lbl_frac  = self._make_val_label("--")
+        self._lbl_nh3   = self._make_val_label("--", big=True)
+        self._lbl_tox   = self._make_val_label("--", big=True)
+        self._lbl_infer = self._make_val_label("--")
+        self._lbl_inst  = QLabel("--")
         self._lbl_inst.setFont(QFont("Segoe UI", 9))
         self._lbl_inst.setStyleSheet("color: #9CA3AF;")
         self._lbl_inst.setWordWrap(True)
@@ -156,21 +156,21 @@ class InputPage(AquaPage):
         scroll_lay.setSpacing(8)
 
         scroll_lay.addWidget(FrameFactory.create_guide_section(
-            f"TAN  (0 – {TAN_MAX} mg/L)",
+            f"TAN  (0 - {TAN_MAX} mg/L)",
             "Total Ammonia Nitrogen from your liquid or strip test kit. "
             "The engine converts this to toxic NH3 using pH and temperature.",
             "Safe cycled tank: TAN near 0 mg/L. Always test all three together."
         ))
         scroll_lay.addWidget(FrameFactory.create_guide_section(
-            f"pH  ({PH_MIN} – {PH_MAX})",
+            f"pH  ({PH_MIN} - {PH_MAX})",
             "Higher pH = more of TAN converts to toxic NH3. "
-            "Most freshwater fish: pH 6.5 – 7.5.",
+            "Most freshwater fish: pH 6.5 - 7.5.",
             "Too low: add pH buffer.  Too high: partial water change."
         ))
         scroll_lay.addWidget(FrameFactory.create_guide_section(
-            f"Temperature  ({TEMP_MIN} – {TEMP_MAX} degrees C)",
+            f"Temperature  ({TEMP_MIN} - {TEMP_MAX} degrees C)",
             "Higher temperature increases NH3 toxicity. "
-            "Tropical fish: 24 – 28 deg C. Coldwater: 18 – 22 deg C.",
+            "Tropical fish: 24 - 28 deg C. Coldwater: 18 - 22 deg C.",
             "Too low: raise heater.  Too high: add chiller or ventilation."
         ))
         scroll_lay.addStretch()
@@ -206,7 +206,7 @@ class InputPage(AquaPage):
     def _clear_result(self):
         for lbl in (self._lbl_pka, self._lbl_frac, self._lbl_nh3,
                     self._lbl_tox, self._lbl_infer, self._lbl_inst):
-            lbl.setText("—")
+            lbl.setText("--")
             lbl.setStyleSheet("color: #E8E8E8;")
 
     # ----------------------------------------------------------------
@@ -257,7 +257,7 @@ class InputPage(AquaPage):
         self._lbl_tox.setText(cfg["label"])
         self._lbl_infer.setText(f"{result.inference_ms:.3f} ms")
         # First dosing instruction (short)
-        first = result.dosing_instructions[0] if result.dosing_instructions else "—"
+        first = result.dosing_instructions[0] if result.dosing_instructions else "--"
         self._lbl_inst.setText(first)
 
         # Persist to SQLite

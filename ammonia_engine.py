@@ -157,7 +157,7 @@ class AmmoniaEngine:
 
         if toxicity == LEVEL_SAFE:
             instructions = [
-                "Water condition is SAFE — no immediate action required.",
+                "Water condition is SAFE -- no immediate action required.",
                 "Perform routine 10-20% water change weekly.",
                 "Continue monitoring TAN, pH, and temperature weekly.",
                 "Maintain biological filtration to keep TAN near 0 mg/L.",
@@ -165,8 +165,8 @@ class AmmoniaEngine:
 
         elif toxicity == LEVEL_CAUTION:
             instructions = [
-                "CAUTION — un-ionized ammonia is approaching toxic threshold.",
-                f"Current NH3: {nh3:.4f} mg/L — target below 0.02 mg/L.",
+                "CAUTION -- un-ionized ammonia is approaching toxic threshold.",
+                f"Current NH3: {nh3:.4f} mg/L -- target below 0.02 mg/L.",
                 "Perform an immediate 25-30% partial water change.",
                 "Reduce feeding to decrease nitrogenous waste output.",
                 "Check and clean mechanical filter media.",
@@ -176,12 +176,12 @@ class AmmoniaEngine:
 
         else:  # LEVEL_CRITICAL
             instructions = [
-                "CRITICAL TOXIC — immediate intervention required!",
-                f"Current NH3: {nh3:.4f} mg/L — EXCEEDS safe limit of 0.02 mg/L.",
+                "CRITICAL TOXIC -- immediate intervention required!",
+                f"Current NH3: {nh3:.4f} mg/L -- EXCEEDS safe limit of 0.02 mg/L.",
                 "Perform an emergency 40-50% water change NOW.",
                 "Temporarily stop all feeding.",
                 "Add ammonia detoxifier / conditioner immediately.",
-                "Check pH — reducing pH lowers NH3 fraction; target pH 7.0.",
+                "Check pH -- reducing pH lowers NH3 fraction; target pH 7.0.",
                 f"At current pH {ph:.1f} and {temperature_c:.1f} deg C, "
                 f"lowering pH by 0.5 units reduces NH3 by ~{100*(1 - 1/(1+math.pow(10, AmmoniaEngine.compute_pka(temperature_c)-(ph-0.5)))/AmmoniaEngine.compute_fraction_nh3(AmmoniaEngine.compute_pka(temperature_c), ph)):.1f}%.",
                 "Move fish to a holding tank if NH3 exceeds 0.10 mg/L.",
@@ -204,7 +204,7 @@ class AmmoniaEngine:
         Args:
             tan:           Total Ammonia Nitrogen (mg/L), range 0-10.
             ph:            Water pH, range 6.0-9.0.
-            temperature_c: Water temperature (°C), range 15-35.
+            temperature_c: Water temperature (degC), range 15-35.
 
         Returns:
             AmmoniaResult object with all computed values.
@@ -223,7 +223,7 @@ class AmmoniaEngine:
             )
         if not (TEMP_MIN <= temperature_c <= TEMP_MAX):
             raise ValueError(
-                f"Temperature must be between {TEMP_MIN} and {TEMP_MAX} °C. "
+                f"Temperature must be between {TEMP_MIN} and {TEMP_MAX} degC. "
                 f"Got {temperature_c}."
             )
 

@@ -26,12 +26,12 @@ class UserManager:
         users[username] = {"password": password}
         self.save_users(users)
         os.makedirs(os.path.join("users", username), exist_ok=True)
-        return True, "✅ Registration successful!"
+        return True, "Registration successful!"
 
     def validate_user(self, username, password):
         users = self.load_users()
         if username not in users:
-            return False, "❌ User not found."
+            return False, "User not found."
         if users[username]["password"] != password:
-            return False, "❌ Incorrect password."
-        return True, "✅ Login successful!"
+            return False, "Incorrect password."
+        return True, "Login successful!"

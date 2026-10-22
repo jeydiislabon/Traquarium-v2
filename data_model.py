@@ -3,7 +3,7 @@ data_model.py
 -------------
 Data persistence layer using SQLite (stdlib sqlite3).
 
-Schema — readings table:
+Schema -- readings table:
     id          INTEGER PRIMARY KEY AUTOINCREMENT
     timestamp   TEXT    NOT NULL
     tank_name   TEXT    NOT NULL
@@ -201,6 +201,6 @@ class ReadingManager:
     # Kept for backward compatibility with history_page save logic
     @property
     def file_path(self):
-        """Legacy property — returns db_path so old code referencing
+        """Legacy property -- returns db_path so old code referencing
         file_path does not break immediately."""
         return self.db_path

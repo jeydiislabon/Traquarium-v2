@@ -1,4 +1,4 @@
-"""Register page — matching split layout with login page."""
+"""Register page -- matching split layout with login page."""
 
 from PyQt6.QtWidgets import (
     QWidget, QHBoxLayout, QVBoxLayout, QLabel, QFrame,
@@ -21,7 +21,7 @@ class RegisterPage(QWidget):
         main_layout.setSpacing(0)
 
         # ----------------------------------------------------------------
-        # LEFT — brand panel
+        # LEFT -- brand panel
         # ----------------------------------------------------------------
         self.left_panel = QFrame()
         self.left_panel.setMinimumWidth(420)
@@ -76,7 +76,7 @@ class RegisterPage(QWidget):
         left_layout.addWidget(tagline)
 
         # ----------------------------------------------------------------
-        # RIGHT — form panel
+        # RIGHT -- form panel
         # ----------------------------------------------------------------
         right_panel = QFrame()
         right_panel.setMinimumWidth(400)

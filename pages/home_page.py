@@ -1,5 +1,5 @@
 # pages/home_page.py
-"""Dashboard / Home page — clean redesign with SENSE-style sidebar."""
+"""Dashboard / Home page -- clean redesign with SENSE-style sidebar."""
 
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel,
@@ -381,7 +381,7 @@ class HomePage(QWidget):
             self.lbl_updated.findChild(QLabel, "val").setText(
                 dt.strftime("%b %d, %I:%M %p"))
         except Exception:
-            self.lbl_updated.findChild(QLabel, "val").setText("—")
+            self.lbl_updated.findChild(QLabel, "val").setText("--")
 
         self.sub_lbl.setText(
             f"Monitoring {profiles} aquarium{'s' if profiles != 1 else ''}")
@@ -404,7 +404,7 @@ class HomePage(QWidget):
                 pg.BarGraphItem(x=[i], height=[height], width=0.6, brush=color))
 
         # Stat cards
-        tox = str(latest.get("toxicity", "—"))
+        tox = str(latest.get("toxicity", "--"))
         tox_colors = {
             "Safe":           "#10B981",
             "Caution":        "#F59E0B",

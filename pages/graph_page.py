@@ -1,5 +1,5 @@
 # pages/graph_page.py
-"""Graph page — bar chart of TAN, NH3, pH, and Temperature per tank."""
+"""Graph page -- bar chart of TAN, NH3, pH, and Temperature per tank."""
 
 import pyqtgraph as pg
 import numpy as np
@@ -53,7 +53,7 @@ class GraphPage(AquaPage):
         temp = np.array([float(r.get("temperature", 0)) for r in filtered])
         nh3  = np.array([float(r.get("nh3",  0)) for r in filtered])
 
-        bw = 0.2   # bar width
+        bw = 0.2
 
         self.plot_widget.addItem(
             pg.BarGraphItem(x=x - 1.5*bw, height=tan,  width=bw,
@@ -63,34 +63,38 @@ class GraphPage(AquaPage):
                             brush="#06B6D4", name="pH"))
         self.plot_widget.addItem(
             pg.BarGraphItem(x=x + 0.5*bw, height=temp, width=bw,
-                            brush="#F59E0B", name="Temp (°C)"))
+                            brush="#F59E0B", name="Temp (deg C)"))
         self.plot_widget.addItem(
             pg.BarGraphItem(x=x + 1.5*bw, height=nh3,  width=bw,
-                            brush="#EF4444", name="NH₃ (mg/L)"))
+                            brush="#EF4444", name="NH3 (mg/L)"))
 
         latest = filtered[-1]
-        tox    = latest.get("toxicity", "—")
-        tox_color = {"Safe": "#66BB6A",
-                     "Caution": "#FFA726",
-                     "Critical Toxic": "#EF5350"}.get(tox, "#FFFFFF")
+        tox    = latest.get("toxicity", "--")
+        tox_color = {
+            "Safe":           "#66BB6A",
+            "Caution":        "#FFA726",
+            "Critical Toxic": "#EF5350",
+        }.get(tox, "#FFFFFF")
 
-        self.info_box.setText(f"""
-        <div style='color:#FFFFFF;'>
-        <b>Tank:</b> {latest.get('name', latest.get('tank_name','—'))}<br>
-        <b>TAN:</b> <span style='color:#38BDF8;'>
-            {float(latest.get('tan', 0)):.4f} mg/L</span><br>
-        <b>NH₃:</b> <span style='color:#EF4444;'>
-            {float(latest.get('nh3', 0)):.6f} mg/L</span><br>
-        <b>pH:</b> <span style='color:#06B6D4;'>
-            {float(latest.get('pH', latest.get('ph', 0))):.2f}</span>
-        &nbsp;&nbsp;
-        <b>Temp:</b> <span style='color:#F59E0B;'>
-            {float(latest.get('temperature', 0)):.1f} °C</span><br>
-        <b>Toxicity:</b> <span style='color:{tox_color};'>{tox}</span><br>
-        <small style='color:#A8DADC;'>
-            Last update: {latest.get('timestamp','—')}</small>
-        </div>
-        """)
+        tank_name = latest.get("name", latest.get("tank_name", "--"))
+        tan_val   = float(latest.get("tan", 0))
+        nh3_val   = float(latest.get("nh3", 0))
+        ph_val    = float(latest.get("pH",  latest.get("ph", 0)))
+        temp_val  = float(latest.get("temperature", 0))
+        ts        = latest.get("timestamp", "--")
+
+        self.info_box.setText(
+            f"<div style='color:#FFFFFF;'>"
+            f"<b>Tank:</b> {tank_name}<br>"
+            f"<b>TAN:</b> <span style='color:#38BDF8;'>{tan_val:.4f} mg/L</span><br>"
+            f"<b>NH3:</b> <span style='color:#EF4444;'>{nh3_val:.6f} mg/L</span><br>"
+            f"<b>pH:</b> <span style='color:#06B6D4;'>{ph_val:.2f}</span>"
+            f"&nbsp;&nbsp;"
+            f"<b>Temp:</b> <span style='color:#F59E0B;'>{temp_val:.1f} deg C</span><br>"
+            f"<b>Toxicity:</b> <span style='color:{tox_color};'>{tox}</span><br>"
+            f"<small style='color:#A8DADC;'>Last update: {ts}</small>"
+            f"</div>"
+        )
 
         self.plot_widget.showGrid(x=True, y=True, alpha=0.3)
         self.plot_widget.setBackground("#1D2429")
