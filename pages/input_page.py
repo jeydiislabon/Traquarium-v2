@@ -114,7 +114,7 @@ class InputPage(AquaPage):
         self._lbl_infer = self._make_val_label("--")
         self._lbl_inst  = QLabel("--")
         self._lbl_inst.setFont(QFont("Segoe UI", 9))
-        self._lbl_inst.setStyleSheet("color: #9CA3AF;")
+        self._lbl_inst.setStyleSheet("color: #B8C4E8;")
         self._lbl_inst.setWordWrap(True)
 
         rows = [
@@ -128,7 +128,7 @@ class InputPage(AquaPage):
         for i, (name, widget) in enumerate(rows):
             key_lbl = QLabel(name)
             key_lbl.setFont(QFont("Segoe UI", 10))
-            key_lbl.setStyleSheet("color: #9CA3AF;")
+            key_lbl.setStyleSheet("color: #B8C4E8;")
             grid.addWidget(key_lbl, i, 0)
             grid.addWidget(widget,  i, 1)
 
@@ -246,7 +246,7 @@ class InputPage(AquaPage):
             return
 
         # Show computation result
-        cfg = _TOX_CFG.get(result.toxicity, {"color": "#E8E8E8", "bg": "#2B3E50", "label": result.toxicity})
+        cfg = _TOX_CFG.get(result.toxicity, {"color": "#E8E8E8", "bg": "#1A2472", "label": result.toxicity})
         self._lbl_pka.setText(f"{result.pka:.6f}")
         self._lbl_frac.setText(f"{result.fraction:.6f}  ({result.fraction * 100:.4f}%)")
         self._lbl_nh3.setStyleSheet(f"color: {cfg['color']}; font-weight: bold;")

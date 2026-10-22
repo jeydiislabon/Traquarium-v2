@@ -11,9 +11,9 @@ class PaintHelper:
     def paint_blue_gradient(widget, event):
         painter = QPainter(widget)
         gradient = QLinearGradient(QPointF(0, 0), QPointF(0, widget.height()))
-        gradient.setColorAt(0, QColor("#1e3c72"))
-        gradient.setColorAt(0.5, QColor("#2a5298"))
-        gradient.setColorAt(1, QColor("#1e3c72"))
+        gradient.setColorAt(0.0, QColor("#1A2472"))
+        gradient.setColorAt(0.5, QColor("#0F1A5A"))
+        gradient.setColorAt(1.0, QColor("#0D1545"))
         painter.fillRect(widget.rect(), gradient)
 
 

@@ -22,9 +22,9 @@ def find_logo_path():
 def background(widget):
     palette = QPalette()
     bg = QLinearGradient(0, 0, 0, widget.height())
-    bg.setColorAt(0.0, QColor("#1e3c72"))
-    bg.setColorAt(0.5, QColor("#2a5298"))
-    bg.setColorAt(1.0, QColor("#1e3c72"))
+    bg.setColorAt(0.0, QColor("#1A2472"))
+    bg.setColorAt(0.5, QColor("#2255A4"))
+    bg.setColorAt(1.0, QColor("#1A2472"))
     palette.setBrush(QPalette.ColorRole.Window, QBrush(bg))
     widget.setAutoFillBackground(True)
     widget.setPalette(palette)

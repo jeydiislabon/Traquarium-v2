@@ -106,7 +106,7 @@ class LoginPage(QWidget):
 
         sign_in_sub = QLabel("Enter your credentials to continue.")
         sign_in_sub.setFont(QFont("Segoe UI", 11))
-        sign_in_sub.setStyleSheet("color: #6B7280;")
+        sign_in_sub.setStyleSheet("color: #6B7BB0;")
         right_layout.addWidget(sign_in_sub)
 
         right_layout.addSpacing(32)
@@ -153,14 +153,16 @@ class LoginPage(QWidget):
         self.login_btn.setFont(QFont("Segoe UI", 12, QFont.Weight.Bold))
         self.login_btn.setStyleSheet("""
             QPushButton {
-                background: #111827;
-                color: #F9C211;
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                    stop:0 #B01040, stop:1 #8B1A3A);
+                color: #FFFFFF;
                 border: none;
                 border-radius: 8px;
+                font-weight: bold;
                 letter-spacing: 1px;
             }
-            QPushButton:hover { background: #1F2937; }
-            QPushButton:pressed { background: #374151; }
+            QPushButton:hover { background: #C01550; }
+            QPushButton:pressed { background: #6B0020; }
         """)
         self.login_btn.clicked.connect(self.login_user)
         right_layout.addWidget(self.login_btn)
@@ -173,14 +175,14 @@ class LoginPage(QWidget):
         signup_row.setAlignment(Qt.AlignmentFlag.AlignCenter)
         no_acc = QLabel("Don't have an account?")
         no_acc.setFont(QFont("Segoe UI", 10))
-        no_acc.setStyleSheet("color: #6B7280;")
+        no_acc.setStyleSheet("color: #6B7BB0;")
         self.register_btn = QPushButton("Sign Up")
         self.register_btn.setFlat(True)
         self.register_btn.setFont(QFont("Segoe UI", 10, QFont.Weight.Bold))
         self.register_btn.setStyleSheet("""
-            QPushButton { color: #111827; background: transparent;
+            QPushButton { color: #673888; background: transparent;
                           border: none; text-decoration: underline; }
-            QPushButton:hover { color: #374151; }
+            QPushButton:hover { color: #C06090; }
         """)
         self.register_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.register_btn.clicked.connect(self.go_to_register)
@@ -227,17 +229,22 @@ class LoginPage(QWidget):
         """
 
     def paintEvent(self, event):
-        """Paint the left panel with a teal-to-blue gradient."""
+        """Paint the left panel with the aquarium palette gradient."""
         painter = QPainter(self)
         panel_rect = self.left_panel.geometry()
         grad = QLinearGradient(
             QPointF(panel_rect.left(), 0),
             QPointF(panel_rect.right(), self.height())
         )
-        grad.setColorAt(0.0, QColor("#0F4C75"))
-        grad.setColorAt(0.5, QColor("#1B6CA8"))
-        grad.setColorAt(1.0, QColor("#0A3D62"))
+        grad.setColorAt(0.0, QColor("#1A2472"))
+        grad.setColorAt(0.45, QColor("#673888"))
+        grad.setColorAt(1.0, QColor("#8B1A3A"))
         painter.fillRect(panel_rect, grad)
+        # Dark background for right side
+        from PyQt6.QtCore import QRect
+        right_rect = QRect(panel_rect.right(), 0,
+                           self.width() - panel_rect.right(), self.height())
+        painter.fillRect(right_rect, QColor("#F3F4F6"))
         super().paintEvent(event)
 
     # ----------------------------------------------------------------

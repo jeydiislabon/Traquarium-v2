@@ -49,7 +49,7 @@ class HomePage(QWidget):
 
         self.sub_lbl = QLabel("No readings yet. Add your first reading to get started.")
         self.sub_lbl.setFont(QFont("Segoe UI", 12))
-        self.sub_lbl.setStyleSheet("color: #9CA3AF;")
+        self.sub_lbl.setStyleSheet("color: #B8C4E8;")
 
         content_lay.addWidget(self.title_lbl)
         content_lay.addWidget(self.sub_lbl)
@@ -59,9 +59,9 @@ class HomePage(QWidget):
         summary.setFixedHeight(72)
         summary.setStyleSheet("""
             QFrame {
-                background: rgba(43, 62, 80, 0.5);
+                background: rgba(26, 36, 114, 0.55);
                 border-radius: 12px;
-                border: 1.5px solid #4A5F7F;
+                border: 1.5px solid #3A4A9A;
             }
         """)
         sum_lay = QHBoxLayout(summary)
@@ -83,9 +83,9 @@ class HomePage(QWidget):
         graph_card.setMinimumHeight(260)
         graph_card.setStyleSheet("""
             QFrame {
-                background: rgba(43, 62, 80, 0.55);
+                background: rgba(13, 21, 69, 0.6);
                 border-radius: 16px;
-                border: 1.5px solid #4A5F7F;
+                border: 1.5px solid #3A4A9A;
             }
         """)
         g_lay = QVBoxLayout(graph_card)
@@ -94,12 +94,12 @@ class HomePage(QWidget):
 
         g_title = QLabel("Latest Water Parameters")
         g_title.setFont(QFont("Segoe UI", 11))
-        g_title.setStyleSheet("color: #9CA3AF;")
+        g_title.setStyleSheet("color: #B8C4E8;")
         g_lay.addWidget(g_title)
 
         self.plot_widget = pg.PlotWidget()
         self.plot_widget.setBackground((43, 62, 80, 80))
-        self.plot_widget.setLabel("left", "Value", color="#9CA3AF", **{"font-size": "9pt"})
+        self.plot_widget.setLabel("left", "Value", color="#B8C4E8", **{"font-size": "9pt"})
         self.plot_widget.showGrid(x=False, y=True, alpha=0.2)
         self.plot_widget.setMouseEnabled(x=False, y=False)
         self.plot_widget.getAxis("bottom").setTicks(
@@ -114,10 +114,10 @@ class HomePage(QWidget):
         cards_lay = QGridLayout()
         cards_lay.setSpacing(20)
 
-        self.ph_card      = self._stat_card("--", "pH Level",     "No data", "#7E87E1")
-        self.temp_card    = self._stat_card("--", "Temperature",  "No data", "#EF5350")
-        self.nh3_card     = self._stat_card("--", "NH3 (mg/L)",   "No data", "#26C6DA")
-        self.toxicity_card = self._stat_card("--", "Toxicity",    "No data", "#F59E0B")
+        self.ph_card      = self._stat_card("--", "pH Level",     "No data", "#A78BFA")
+        self.temp_card    = self._stat_card("--", "Temperature",  "No data", "#C06090")
+        self.nh3_card     = self._stat_card("--", "NH3 (mg/L)",   "No data", "#B01040")
+        self.toxicity_card = self._stat_card("--", "Toxicity",    "No data", "#673888")
 
         cards_lay.addWidget(self.ph_card,       0, 0)
         cards_lay.addWidget(self.temp_card,     0, 1)
@@ -142,9 +142,9 @@ class HomePage(QWidget):
         sidebar.setStyleSheet("""
             QFrame {
                 background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                    stop:0 #1A2530, stop:1 #131C23);
+                    stop:0 #1A2472, stop:1 #0D1545);
                 border: none;
-                border-right: 1px solid rgba(255,255,255,0.06);
+                border-right: 1px solid #3A4A9A;
             }
         """)
         lay = QVBoxLayout(sidebar)
@@ -159,7 +159,7 @@ class HomePage(QWidget):
         logo_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
         logo_box.setFont(QFont("Segoe UI", 16, QFont.Weight.Bold))
         logo_box.setStyleSheet("""
-            background: #1B6CA8; color: white;
+            background: #673888; color: white;
             border-radius: 8px;
         """)
         brand = QLabel("Traquarium")
@@ -181,7 +181,7 @@ class HomePage(QWidget):
         avatar.setAlignment(Qt.AlignmentFlag.AlignCenter)
         avatar.setFont(QFont("Segoe UI", 13, QFont.Weight.Bold))
         avatar.setStyleSheet("""
-            background: #293438; color: white;
+            background: #1A2472; color: white;
             border-radius: 17px;
             border: 1.5px solid rgba(255,255,255,0.2);
         """)
@@ -208,7 +208,7 @@ class HomePage(QWidget):
         # Section label
         sec = QLabel("NAVIGATION")
         sec.setFont(QFont("Segoe UI", 8, QFont.Weight.Bold))
-        sec.setStyleSheet("color: #4A5F7F; letter-spacing: 2px; padding-left: 20px;")
+        sec.setStyleSheet("color: #3A4A9A; letter-spacing: 2px; padding-left: 20px;")
         lay.addWidget(sec)
         lay.addSpacing(6)
 
@@ -224,11 +224,13 @@ class HomePage(QWidget):
         self.add_btn.setFixedHeight(40)
         self.add_btn.setStyleSheet("""
             QPushButton {
-                background: #1B6CA8; color: white;
-                border: none; border-radius: 8px;
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                    stop:0 #B01040, stop:1 #8B1A3A);
+                color: white; border: none; border-radius: 8px;
                 margin: 0 16px; text-align: left; padding-left: 14px;
+                font-weight: bold;
             }
-            QPushButton:hover { background: #1A5F96; }
+            QPushButton:hover { background: #C01550; }
         """)
         self.add_btn.clicked.connect(lambda: self.stacked_widget.setCurrentIndex(4))
         self.add_btn.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -239,7 +241,7 @@ class HomePage(QWidget):
         # Bottom: tagline
         tag = QLabel("Your tank data,\nyour decisions.")
         tag.setFont(QFont("Segoe UI", 9))
-        tag.setStyleSheet("color: #4A5F7F; padding-left: 20px; padding-bottom: 8px;")
+        tag.setStyleSheet("color: #3A4A9A; padding-left: 20px; padding-bottom: 8px;")
         lay.addWidget(tag)
 
         # Logout
@@ -266,7 +268,7 @@ class HomePage(QWidget):
         btn.setFixedHeight(38)
         btn.setStyleSheet("""
             QPushButton {
-                background: transparent; color: #9CA3AF;
+                background: transparent; color: #B8C4E8;
                 border: none; text-align: left;
                 padding-left: 20px; border-radius: 0;
             }
@@ -293,7 +295,7 @@ class HomePage(QWidget):
         val.setObjectName("val")
         lbl = QLabel(label)
         lbl.setFont(QFont("Segoe UI", 9))
-        lbl.setStyleSheet("color: #9CA3AF;")
+        lbl.setStyleSheet("color: #B8C4E8;")
         lay.addWidget(val)
         lay.addWidget(lbl)
         return w
@@ -313,12 +315,12 @@ class HomePage(QWidget):
     def _stat_card(self, value, label, detail, color):
         card = QFrame()
         card.setMinimumHeight(130)
-        card.setStyleSheet(f"""
-            QFrame {{
-                background: rgba(43, 62, 80, 0.55);
+        card.setStyleSheet("""
+            QFrame {
+                background: rgba(13, 21, 69, 0.65);
                 border-radius: 14px;
-                border: 1.5px solid #4A5F7F;
-            }}
+                border: 1.5px solid #3A4A9A;
+            }
         """)
         lay = QVBoxLayout(card)
         lay.setContentsMargins(20, 18, 20, 18)
@@ -326,7 +328,7 @@ class HomePage(QWidget):
 
         lbl = QLabel(label)
         lbl.setFont(QFont("Segoe UI", 10))
-        lbl.setStyleSheet("color: #9CA3AF; background: transparent;")
+        lbl.setStyleSheet("color: #B8C4E8; background: transparent;")
         lay.addWidget(lbl)
 
         val = QLabel(value)
@@ -337,7 +339,7 @@ class HomePage(QWidget):
 
         det = QLabel(detail)
         det.setFont(QFont("Segoe UI", 9))
-        det.setStyleSheet("color: #6B7280; background: transparent;")
+        det.setStyleSheet("color: #6B7BB0; background: transparent;")
         det.setObjectName("detail")
         lay.addWidget(det)
 

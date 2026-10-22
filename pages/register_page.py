@@ -96,7 +96,7 @@ class RegisterPage(QWidget):
 
         sub2 = QLabel("Fill in the details below to get started.")
         sub2.setFont(QFont("Segoe UI", 11))
-        sub2.setStyleSheet("color: #6B7280;")
+        sub2.setStyleSheet("color: #6B7BB0;")
         right_layout.addWidget(sub2)
         right_layout.addSpacing(28)
 
@@ -130,11 +130,13 @@ class RegisterPage(QWidget):
         self.register_btn.setFont(QFont("Segoe UI", 12, QFont.Weight.Bold))
         self.register_btn.setStyleSheet("""
             QPushButton {
-                background: #111827; color: #F9C211;
-                border: none; border-radius: 8px; letter-spacing: 1px;
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                    stop:0 #B01040, stop:1 #8B1A3A);
+                color: #FFFFFF; border: none; border-radius: 8px;
+                font-weight: bold; letter-spacing: 1px;
             }
-            QPushButton:hover { background: #1F2937; }
-            QPushButton:pressed { background: #374151; }
+            QPushButton:hover { background: #C01550; }
+            QPushButton:pressed { background: #6B0020; }
         """)
         self.register_btn.clicked.connect(self.register_user)
         right_layout.addWidget(self.register_btn)
@@ -144,7 +146,7 @@ class RegisterPage(QWidget):
         login_row.setAlignment(Qt.AlignmentFlag.AlignCenter)
         has_acc = QLabel("Already have an account?")
         has_acc.setFont(QFont("Segoe UI", 10))
-        has_acc.setStyleSheet("color: #6B7280;")
+        has_acc.setStyleSheet("color: #6B7BB0;")
         login_link = QPushButton("Sign In")
         login_link.setFlat(True)
         login_link.setFont(QFont("Segoe UI", 10, QFont.Weight.Bold))
@@ -188,10 +190,14 @@ class RegisterPage(QWidget):
             QPointF(panel_rect.left(), 0),
             QPointF(panel_rect.right(), self.height())
         )
-        grad.setColorAt(0.0, QColor("#0F4C75"))
-        grad.setColorAt(0.5, QColor("#1B6CA8"))
-        grad.setColorAt(1.0, QColor("#0A3D62"))
+        grad.setColorAt(0.0, QColor("#1A2472"))
+        grad.setColorAt(0.45, QColor("#673888"))
+        grad.setColorAt(1.0, QColor("#8B1A3A"))
         painter.fillRect(panel_rect, grad)
+        from PyQt6.QtCore import QRect
+        right_rect = QRect(panel_rect.right(), 0,
+                           self.width() - panel_rect.right(), self.height())
+        painter.fillRect(right_rect, QColor("#F3F4F6"))
         super().paintEvent(event)
 
     def go_to_login(self):

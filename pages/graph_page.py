@@ -14,7 +14,7 @@ class GraphPage(AquaPage):
         super().__init__("Water Parameter Graph", stacked_widget)
 
         self.plot_widget = pg.PlotWidget()
-        self.plot_widget.setBackground("#1D2429")
+        self.plot_widget.setBackground("#0D1545")
         self.plot_widget.setLabel("left",   "Value",         color="#FFFFFF")
         self.plot_widget.setLabel("bottom", "Reading Index", color="#FFFFFF")
         self.plot_widget.showGrid(x=True, y=True, alpha=0.3)
@@ -97,5 +97,5 @@ class GraphPage(AquaPage):
         )
 
         self.plot_widget.showGrid(x=True, y=True, alpha=0.3)
-        self.plot_widget.setBackground("#1D2429")
+        self.plot_widget.setBackground("#0D1545")
         self.plot_widget.setMouseEnabled(x=False, y=False)

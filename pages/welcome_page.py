@@ -34,18 +34,21 @@ class WelcomePage(QWidget):
         self.subtitle = QLabel("Let's explore your aquarium data!")
         self.subtitle.setFont(SUBTITLE_FONT)
         self.subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.subtitle.setStyleSheet("color: #A8DADC;")
+        self.subtitle.setStyleSheet("color: #C4B5FD;")
         layout.addWidget(self.subtitle)
 
         btn_style = """
             QPushButton {
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #293438, stop:1 #1D2429);
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                    stop:0 #B01040, stop:1 #673888);
                 color: #FFFFFF; padding: 12px 28px; border-radius: 12px;
                 font-weight: bold; border: none; outline: none;
             }
             QPushButton:hover {
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #242C30, stop:1 #0F1314);
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                    stop:0 #C01550, stop:1 #7A44A0);
             }
+            QPushButton:pressed { background: #6B0020; }
         """
         
         for text, callback in [("Home", self._go_dashboard), ("About Us", self._show_about)]:
@@ -91,7 +94,7 @@ class WelcomePage(QWidget):
                 font-size: 12px;
             }
             QPushButton {
-                background-color: #293438;
+                background-color: #1A2472;
                 color: #FFFFFF;
                 padding: 8px 16px;
                 border-radius: 8px;
@@ -99,7 +102,7 @@ class WelcomePage(QWidget):
                 outline: none;
             }
             QPushButton:hover {
-                background-color: #242C30;
+                background-color: #1E2D6B;
             }
         """)
         msg.exec()

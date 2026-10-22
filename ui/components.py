@@ -199,14 +199,14 @@ class LabelFactory:
         return label
     
     @staticmethod
-    def create_subtitle(text, font, color="#9CA3AF"):
+    def create_subtitle(text, font, color="#B8C4E8"):
         label = QLabel(text)
         label.setFont(font)
         label.setStyleSheet(f"color: {color};")
         return label
     
     @staticmethod
-    def create_feedback(font, color="#9CA3AF"):
+    def create_feedback(font, color="#B8C4E8"):
         label = QLabel("")
         label.setFont(font)
         label.setAlignment(Qt.AlignmentFlag.AlignCenter)

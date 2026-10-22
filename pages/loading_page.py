@@ -33,7 +33,7 @@ class LoadingPage(QWidget):
         loading_text = QLabel("Loading...")
         loading_text.setFont(MAIN_FONT)
         loading_text.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        loading_text.setStyleSheet("color: #B8B8B8;")
+        loading_text.setStyleSheet("color: #B8C4E8; letter-spacing: 2px;")
         layout.addWidget(loading_text)
         layout.addSpacing(15)
         

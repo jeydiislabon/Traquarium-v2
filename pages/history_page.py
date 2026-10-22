@@ -50,7 +50,7 @@ class NumericDelegate(QStyledItemDelegate):
                 ok = lo <= val <= hi
             except ValueError:
                 ok = False
-        color = "#2B3E50" if ok else "#EF5350"
+        color = "#1A2472" if ok else "#EF5350"
         editor.setStyleSheet(f"background:{color}; color:white;")
 
     def setModelData(self, editor, model, index):
@@ -168,7 +168,7 @@ class HistoryPage(AquaPage):
         self.dropdown_button.clicked.connect(self.toggle_dropdown)
         self.dropdown_button.setStyleSheet("""
             QPushButton {
-                background-color: #CAE9FF; color: #1B4965;
+                background-color: #C4B5FD; color: #1A2472;
                 padding: 6px; border-radius: 4px;
                 font-size: 11px; font-weight: bold;
             }
@@ -400,7 +400,7 @@ class HistoryPage(AquaPage):
                     item.setFlags(item.flags() | Qt.ItemFlag.ItemIsEditable)
                 else:
                     item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEditable)
-                item.setBackground(QColor("#4A5F7F"))
+                item.setBackground(QColor("#3A4A9A"))
         QMessageBox.information(
             self, "Edit Mode",
             "Double-click Tank Name, TAN, pH, or Temperature to edit.\n"
