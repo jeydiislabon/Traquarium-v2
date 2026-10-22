@@ -493,7 +493,7 @@ class HomePage(QWidget):
 
         # Update summary stats
         total = len(readings)
-        unique_profiles = len(set(r["name"] for r in readings))
+        unique_profiles = len(set(r.get("name", r.get("tank_name", "")) for r in readings))
         
         self.total_readings_label.setText(f"{total}\nTotal Readings")
         self.profiles_label.setText(f"{unique_profiles}\nProfiles Tracked")
@@ -501,9 +501,12 @@ class HomePage(QWidget):
         # Format last updated time
         latest = readings[-1]
         try:
-            last_time = datetime.strptime(latest["timestamp"], "%Y-%m-%d %H:%M:%S")
+            last_time = datetime.strptime(latest.get("timestamp",""), "%Y-%m-%d %H:%M:%S")
         except ValueError:
-            last_time = datetime.strptime(latest["timestamp"], "%Y-%m-%d %H:%M")
+            try:
+                last_time = datetime.strptime(latest.get("timestamp",""), "%Y-%m-%d %H:%M")
+            except ValueError:
+                last_time = datetime.now()
         
         time_str = last_time.strftime("%b %d, %I:%M %p")
         self.last_updated_label.setText(f"{time_str}\nLast Updated")
@@ -513,60 +516,69 @@ class HomePage(QWidget):
         self.add_btn.setText("→ Go to Input")
 
         # Update graph with latest reading only
-        ph = float(latest["pH"])
-        temp = float(latest["temperature"])
-        ammonia = float(latest["ammonia"])
-        
-        # Clear and create bar graph
+        ph   = float(latest.get("pH", latest.get("ph", 0)))
+        temp = float(latest.get("temperature", 0))
+        tan  = float(latest.get("tan", 0))
+        nh3  = float(latest.get("nh3", 0))
+
+        # Clear and create bar graph (TAN, pH, Temp, NH3)
         self.plot_widget.clear()
-        
-        x = np.array([0, 1, 2])
-        heights = np.array([ph, temp, ammonia])
-        colors = [(126, 135, 225), (239, 83, 80), (38, 198, 218)]
-        
-        # Create bars
-        for i in range(3):
-            bar = pg.BarGraphItem(x=[x[i]], height=[heights[i]], width=0.6, brush=colors[i])
+
+        x       = np.array([0, 1, 2, 3])
+        heights = np.array([tan, ph, temp, nh3])
+        colors  = [(56, 189, 248), (126, 135, 225), (239, 83, 80), (239, 68, 68)]
+
+        for i in range(4):
+            bar = pg.BarGraphItem(x=[x[i]], height=[heights[i]],
+                                  width=0.6, brush=colors[i])
             self.plot_widget.addItem(bar)
 
         # Update stats cards
         if total > 1:
             try:
-                first_date = datetime.strptime(readings[0]["timestamp"], "%Y-%m-%d %H:%M:%S")
-                last_date = datetime.strptime(readings[-1]["timestamp"], "%Y-%m-%d %H:%M:%S")
+                first_date = datetime.strptime(readings[0].get("timestamp",""), "%Y-%m-%d %H:%M:%S")
+                last_date  = datetime.strptime(readings[-1].get("timestamp",""), "%Y-%m-%d %H:%M:%S")
             except ValueError:
-                first_date = datetime.strptime(readings[0]["timestamp"], "%Y-%m-%d %H:%M")
-                last_date = datetime.strptime(readings[-1]["timestamp"], "%Y-%m-%d %H:%M")
+                try:
+                    first_date = datetime.strptime(readings[0].get("timestamp",""), "%Y-%m-%d %H:%M")
+                    last_date  = datetime.strptime(readings[-1].get("timestamp",""), "%Y-%m-%d %H:%M")
+                except ValueError:
+                    first_date = last_date = datetime.now()
             days = (last_date - first_date).days + 1
         else:
             days = 1
 
-        avg_ph = sum(float(r["pH"]) for r in readings) / total
-        avg_temp = sum(float(r["temperature"]) for r in readings) / total
+        avg_ph   = sum(float(r.get("pH", r.get("ph", 0))) for r in readings) / total
+        avg_temp = sum(float(r.get("temperature", 0)) for r in readings) / total
 
         self.update_stats(total, days, avg_ph, avg_temp)
 
     def update_stats(self, total, days, avg_ph, avg_temp):
-        """Update statistics cards with latest reading data"""
+        """Update statistics cards with latest reading data."""
         if not self.readings:
             return
-            
+
         latest = self.readings[-1]
-        
-        # Update pH card
-        ph_val = latest["pH"]
+
+        # pH card
+        ph_val = latest.get("pH", latest.get("ph", "—"))
         self.ph_card.findChild(QLabel, "value").setText(str(ph_val))
         self.ph_card.findChild(QLabel, "detail").setText("Latest reading")
-        
-        # Update Temperature card
-        temp_val = latest["temperature"]
+
+        # Temperature card
+        temp_val = latest.get("temperature", "—")
         self.temp_card.findChild(QLabel, "value").setText(str(temp_val))
         self.temp_card.findChild(QLabel, "detail").setText("°C")
-        
-        # Update Ammonia card
-        ammonia_val = latest["ammonia"]
-        self.ammonia_card.findChild(QLabel, "value").setText(str(ammonia_val))
-        self.ammonia_card.findChild(QLabel, "detail").setText("ppm")
+
+        # NH3 card (was ammonia card)
+        nh3_val = latest.get("nh3", "—")
+        try:
+            nh3_display = f"{float(nh3_val):.4f}"
+        except (TypeError, ValueError):
+            nh3_display = str(nh3_val)
+        self.ammonia_card.findChild(QLabel, "value").setText(nh3_display)
+        tox = latest.get("toxicity", "")
+        self.ammonia_card.findChild(QLabel, "detail").setText(f"mg/L  {tox}")
 
     def paintEvent(self, event):
         from ui.helpers import PaintHelper

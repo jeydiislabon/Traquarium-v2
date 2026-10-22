@@ -47,21 +47,19 @@ class ValidationHelper:
             return False, f"{field_name} must be a valid number."
     
     @staticmethod
-    def validate_water_params(ph, temp, ammonia):
+    def validate_water_params(ph, temp, tan):
+        """Validate pH, temperature and TAN against Emerson model ranges."""
         errors = []
-        
-        valid, msg = ValidationHelper.validate_range(ph, 0, 14, "pH")
-        if not valid:
-            errors.append(msg)
-        
-        valid, msg = ValidationHelper.validate_range(temp, 0, 40, "Temperature")
-        if not valid:
-            errors.append(msg)
-        
-        valid, msg = ValidationHelper.validate_range(ammonia, 0, 10, "Ammonia")
-        if not valid:
-            errors.append(msg)
-        
+
+        valid, msg = ValidationHelper.validate_range(ph,   6.0,  9.0,  "pH")
+        if not valid: errors.append(msg)
+
+        valid, msg = ValidationHelper.validate_range(temp, 15.0, 35.0, "Temperature")
+        if not valid: errors.append(msg)
+
+        valid, msg = ValidationHelper.validate_range(tan,  0.0,  10.0, "TAN")
+        if not valid: errors.append(msg)
+
         if errors:
             return False, "\n".join(errors)
         return True, ""
@@ -144,39 +142,58 @@ class DataHelper:
 
 class WarningHelper:
     @staticmethod
-    def generate_warnings(ph, temp, ammonia):
+    def generate_warnings(ph, temp, nh3):
+        """
+        Generate warnings based on pH, temperature, and computed NH3 (mg/L).
+        NH3 thresholds follow Emerson et al. (1975):
+            Safe          : NH3 < 0.02 mg/L
+            Caution       : 0.02 <= NH3 < 0.05 mg/L
+            Critical Toxic: NH3 >= 0.05 mg/L
+        """
         from PyQt6.QtGui import QColor
-        
+
         warnings = []
-        
+
+        # --- pH ---
         if ph < 6.5:
-            warnings.append(("⚠ pH too low", "Add pH buffer or check CO₂", 
-                           QColor("#E65100"), QColor("#FFF3E0")))
+            warnings.append(("⚠ pH too low",
+                              "Add pH buffer or reduce CO₂",
+                              QColor("#E65100"), QColor("#FFF3E0")))
         elif ph > 8.0:
-            warnings.append(("⚠ pH too high", "Perform partial water change", 
-                           QColor("#E65100"), QColor("#FFF3E0")))
+            warnings.append(("⚠ pH too high",
+                              "Perform partial water change",
+                              QColor("#E65100"), QColor("#FFF3E0")))
         else:
-            warnings.append(("✔ pH OK", "No immediate action", 
-                           QColor("#2E7D32"), QColor("#E8F5E9")))
-        
+            warnings.append(("✔ pH OK",
+                              "No immediate action required",
+                              QColor("#2E7D32"), QColor("#E8F5E9")))
+
+        # --- Temperature ---
         if temp < 20:
-            warnings.append(("❄ Temperature too low", "Increase heater temperature", 
-                           QColor("#0277BD"), QColor("#E3F2FD")))
+            warnings.append(("❄ Temperature too low",
+                              "Increase heater temperature",
+                              QColor("#0277BD"), QColor("#E3F2FD")))
         elif temp > 28:
-            warnings.append(("🔥 Temperature too high", "Cool the tank or improve ventilation", 
-                           QColor("#C62828"), QColor("#FFEBEE")))
+            warnings.append(("🔥 Temperature too high",
+                              "Improve ventilation or add chiller",
+                              QColor("#C62828"), QColor("#FFEBEE")))
         else:
-            warnings.append(("✔ Temperature OK", "No immediate action", 
-                           QColor("#2E7D32"), QColor("#E8F5E9")))
-        
-        if ammonia > 0.5:
-            warnings.append(("☠ High Ammonia Level", "Perform partial water change immediately", 
-                           QColor("#B71C1C"), QColor("#FFEBEE")))
-        elif ammonia > 0.2:
-            warnings.append(("⚠ Moderate Ammonia", "Check filter and feed less", 
-                           QColor("#E65100"), QColor("#FFF3E0")))
+            warnings.append(("✔ Temperature OK",
+                              "No immediate action required",
+                              QColor("#2E7D32"), QColor("#E8F5E9")))
+
+        # --- NH3 (computed un-ionized ammonia) ---
+        if nh3 >= 0.05:
+            warnings.append(("☠ NH₃ CRITICAL TOXIC",
+                              f"Emergency water change now! ({nh3:.4f} mg/L)",
+                              QColor("#B71C1C"), QColor("#FFEBEE")))
+        elif nh3 >= 0.02:
+            warnings.append(("⚠ NH₃ Caution",
+                              f"Perform 25-30% water change. ({nh3:.4f} mg/L)",
+                              QColor("#E65100"), QColor("#FFF3E0")))
         else:
-            warnings.append(("✔ Ammonia OK", "No immediate action", 
-                           QColor("#2E7D32"), QColor("#E8F5E9")))
-        
+            warnings.append(("✔ NH₃ Safe",
+                              f"Below 0.02 mg/L threshold. ({nh3:.4f} mg/L)",
+                              QColor("#2E7D32"), QColor("#E8F5E9")))
+
         return warnings

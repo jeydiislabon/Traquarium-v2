@@ -1,5 +1,5 @@
 # pages/graph_page.py
-"""Graph visualization page"""
+"""Graph page — bar chart of TAN, NH3, pH, and Temperature per tank."""
 
 import pyqtgraph as pg
 import numpy as np
@@ -13,70 +13,82 @@ class GraphPage(AquaPage):
     def __init__(self, stacked_widget):
         super().__init__("Water Parameter Graph", stacked_widget)
 
-        # Graph area
         self.plot_widget = pg.PlotWidget()
         self.plot_widget.setBackground("#1D2429")
-        self.plot_widget.setLabel("left", "Value", color="#FFFFFF")
+        self.plot_widget.setLabel("left",   "Value",         color="#FFFFFF")
         self.plot_widget.setLabel("bottom", "Reading Index", color="#FFFFFF")
         self.plot_widget.showGrid(x=True, y=True, alpha=0.3)
         self.plot_widget.setMouseEnabled(x=False, y=False)
         self.plot_widget.addLegend(offset=(10, 10))
         self.content_layout.addWidget(self.plot_widget, stretch=1)
 
-        # Info box (centered below graph)
         self.info_box = QLabel("")
         self.info_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.info_box.setFont(QFont("Segoe UI", 11))
         from ui.styles import INFO_BOX_STYLE
         self.info_box.setStyleSheet(INFO_BOX_STYLE)
-        self.content_layout.addWidget(self.info_box, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.content_layout.addWidget(self.info_box,
+                                      alignment=Qt.AlignmentFlag.AlignCenter)
 
     def update_graph(self, readings, selected_name=None):
-        """Draws a smooth line graph for one or all readings."""
         self.plot_widget.clear()
-        
-        if not selected_name:
-            self.info_box.setText("No profile selected.")
-            return
 
+        if not selected_name:
+            self.info_box.setText("Select a tank from the History page.")
+            return
         if not readings:
             self.info_box.setText("No readings to display.")
             return
 
-        # Filter by selected name
-        if selected_name:
-            readings = [r for r in readings if r["name"].lower() == selected_name.lower()]
-            if not readings:
-                self.info_box.setText(f"No data found for '{selected_name}'.")
-                return
+        filtered = [r for r in readings
+                    if str(r.get("name", r.get("tank_name", ""))).lower()
+                    == selected_name.lower()]
+        if not filtered:
+            self.info_box.setText(f"No data for '{selected_name}'.")
+            return
 
-        # Plot data as bar graphs
-        x = np.arange(len(readings))
-        ph = np.array([float(r["pH"]) for r in readings])
-        temp = np.array([float(r["temperature"]) for r in readings])
-        ammonia = np.array([float(r["ammonia"]) for r in readings])
-        
-        # Bar width
-        bar_width = 0.25
-        
-        # Create bar graphs with offset positions
-        bg1 = pg.BarGraphItem(x=x - bar_width, height=ph, width=bar_width, brush="#06B6D4", name="pH Level")
-        bg2 = pg.BarGraphItem(x=x, height=temp, width=bar_width, brush="#F59E0B", name="Temperature (°C)")
-        bg3 = pg.BarGraphItem(x=x + bar_width, height=ammonia, width=bar_width, brush="#EF4444", name="Ammonia (ppm)")
-        
-        self.plot_widget.addItem(bg1)
-        self.plot_widget.addItem(bg2)
-        self.plot_widget.addItem(bg3)
+        x    = np.arange(len(filtered))
+        tan  = np.array([float(r.get("tan",  0)) for r in filtered])
+        ph   = np.array([float(r.get("pH",   r.get("ph", 0))) for r in filtered])
+        temp = np.array([float(r.get("temperature", 0)) for r in filtered])
+        nh3  = np.array([float(r.get("nh3",  0)) for r in filtered])
 
-        # Display info box for last reading
-        latest = readings[-1]
+        bw = 0.2   # bar width
+
+        self.plot_widget.addItem(
+            pg.BarGraphItem(x=x - 1.5*bw, height=tan,  width=bw,
+                            brush="#38BDF8", name="TAN (mg/L)"))
+        self.plot_widget.addItem(
+            pg.BarGraphItem(x=x - 0.5*bw, height=ph,   width=bw,
+                            brush="#06B6D4", name="pH"))
+        self.plot_widget.addItem(
+            pg.BarGraphItem(x=x + 0.5*bw, height=temp, width=bw,
+                            brush="#F59E0B", name="Temp (°C)"))
+        self.plot_widget.addItem(
+            pg.BarGraphItem(x=x + 1.5*bw, height=nh3,  width=bw,
+                            brush="#EF4444", name="NH₃ (mg/L)"))
+
+        latest = filtered[-1]
+        tox    = latest.get("toxicity", "—")
+        tox_color = {"Safe": "#66BB6A",
+                     "Caution": "#FFA726",
+                     "Critical Toxic": "#EF5350"}.get(tox, "#FFFFFF")
+
         self.info_box.setText(f"""
         <div style='color:#FFFFFF;'>
-        <b>Profile:</b> {latest['name']}<br>
-        <b>pH:</b> <span style='color:#06B6D4;'>{latest['pH']}</span><br>
-        <b>Temperature:</b> <span style='color:#F59E0B;'>{latest['temperature']} °C</span><br>
-        <b>Ammonia:</b> <span style='color:#EF4444;'>{latest['ammonia']} ppm</span><br>
-        <small style='color:#A8DADC;'>Timestamp: {latest['timestamp']}</small>
+        <b>Tank:</b> {latest.get('name', latest.get('tank_name','—'))}<br>
+        <b>TAN:</b> <span style='color:#38BDF8;'>
+            {float(latest.get('tan', 0)):.4f} mg/L</span><br>
+        <b>NH₃:</b> <span style='color:#EF4444;'>
+            {float(latest.get('nh3', 0)):.6f} mg/L</span><br>
+        <b>pH:</b> <span style='color:#06B6D4;'>
+            {float(latest.get('pH', latest.get('ph', 0))):.2f}</span>
+        &nbsp;&nbsp;
+        <b>Temp:</b> <span style='color:#F59E0B;'>
+            {float(latest.get('temperature', 0)):.1f} °C</span><br>
+        <b>Toxicity:</b> <span style='color:{tox_color};'>{tox}</span><br>
+        <small style='color:#A8DADC;'>
+            Last update: {latest.get('timestamp','—')}</small>
         </div>
         """)
 
