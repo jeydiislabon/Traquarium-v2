@@ -4,7 +4,8 @@ from PyQt6.QtWidgets import (
     QWidget, QHBoxLayout, QVBoxLayout, QLabel, QFrame, QSizePolicy
 )
 from PyQt6.QtCore import Qt, QTimer
-from PyQt6.QtGui import QFont, QPainter, QColor, QLinearGradient, QPointF
+from PyQt6.QtGui import QFont, QPainter, QColor, QLinearGradient
+from PyQt6.QtCore import Qt, QTimer, QPointF
 from auth import UserManager
 from ui.components import ButtonFactory, InputFieldFactory, LabelFactory
 from ui.helpers import ValidationHelper

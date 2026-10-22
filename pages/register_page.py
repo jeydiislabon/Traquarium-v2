@@ -4,8 +4,8 @@ from PyQt6.QtWidgets import (
     QWidget, QHBoxLayout, QVBoxLayout, QLabel, QFrame,
     QLineEdit, QPushButton, QSizePolicy
 )
-from PyQt6.QtCore import Qt, QTimer
-from PyQt6.QtGui import QFont, QPainter, QColor, QLinearGradient, QPointF
+from PyQt6.QtCore import Qt, QTimer, QPointF
+from PyQt6.QtGui import QFont, QPainter, QColor, QLinearGradient
 from auth import UserManager
 from ui.helpers import ValidationHelper
 
