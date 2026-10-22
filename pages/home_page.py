@@ -1,18 +1,12 @@
 # pages/home_page.py
-"""Dashboard/Home page with modern sidebar layout"""
+"""Dashboard / Home page — clean redesign with SENSE-style sidebar."""
 
 from PyQt6.QtWidgets import (
-    QWidget,
-    QVBoxLayout,
-    QHBoxLayout,
-    QLabel,
-    QPushButton,
-    QFrame,
-    QGridLayout,
-    QScrollArea,
+    QWidget, QVBoxLayout, QHBoxLayout, QLabel,
+    QPushButton, QFrame, QGridLayout, QScrollArea,
 )
 from PyQt6.QtCore import Qt, QPointF, QRectF
-from PyQt6.QtGui import QFont, QPixmap, QPainter, QLinearGradient, QColor, QPainterPath
+from PyQt6.QtGui import QFont, QPainter, QLinearGradient, QColor, QPainterPath
 from datetime import datetime
 import pyqtgraph as pg
 import numpy as np
@@ -21,564 +15,436 @@ import numpy as np
 class HomePage(QWidget):
     def __init__(self, stacked_widget, manager, username):
         super().__init__()
-        self.username = username
-        self.manager = manager
+        self.username       = username
+        self.manager        = manager
         self.stacked_widget = stacked_widget
-        self.readings = []
+        self.readings       = []
 
-        # Main horizontal layout (sidebar + content)
-        main_layout = QHBoxLayout(self)
-        main_layout.setContentsMargins(0, 0, 0, 0)
-        main_layout.setSpacing(0)
+        # ----------------------------------------------------------------
+        # Root layout: sidebar | content
+        # ----------------------------------------------------------------
+        root = QHBoxLayout(self)
+        root.setContentsMargins(0, 0, 0, 0)
+        root.setSpacing(0)
 
-        # Left Sidebar
-        self.sidebar = self.create_sidebar()
-        main_layout.addWidget(self.sidebar)
+        # ---- Sidebar ---------------------------------------------------
+        self.sidebar = self._build_sidebar()
+        root.addWidget(self.sidebar)
 
-        # Center Content Area
-        content_area = QWidget()
-        content_area.setStyleSheet("background: transparent;")
-        content_layout = QVBoxLayout(content_area)
-        content_layout.setContentsMargins(30, 30, 30, 30)
-        content_layout.setSpacing(20)
+        # ---- Content ---------------------------------------------------
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setStyleSheet("background: transparent; border: none;")
 
-        # Header with welcome message
-        header_layout = QVBoxLayout()
-        header_layout.setSpacing(5)
-        
-        self.title_label = QLabel(f"Welcome back, {self.username}!")
-        self.title_label.setFont(QFont("Segoe UI", 24, QFont.Weight.Light))
-        self.title_label.setStyleSheet("color: #E8E8E8;")
-        header_layout.addWidget(self.title_label)
-        
-        # Subtitle with quick info
-        self.subtitle_label = QLabel("Here's your aquarium overview")
-        self.subtitle_label.setFont(QFont("Segoe UI", 12))
-        self.subtitle_label.setStyleSheet("color: #B8B8B8;")
-        header_layout.addWidget(self.subtitle_label)
-        
-        content_layout.addLayout(header_layout)
-        
-        # Quick stats summary
-        self.summary_card = QFrame()
-        self.summary_card.setFixedHeight(80)
-        self.summary_card.setStyleSheet("""
+        content_widget = QWidget()
+        content_widget.setStyleSheet("background: transparent;")
+        content_lay = QVBoxLayout(content_widget)
+        content_lay.setContentsMargins(36, 32, 36, 32)
+        content_lay.setSpacing(24)
+
+        # Header
+        self.title_lbl = QLabel(f"Welcome back, {self.username}!")
+        self.title_lbl.setFont(QFont("Segoe UI", 26, QFont.Weight.Light))
+        self.title_lbl.setStyleSheet("color: #E8E8E8;")
+
+        self.sub_lbl = QLabel("No readings yet. Add your first reading to get started.")
+        self.sub_lbl.setFont(QFont("Segoe UI", 12))
+        self.sub_lbl.setStyleSheet("color: #9CA3AF;")
+
+        content_lay.addWidget(self.title_lbl)
+        content_lay.addWidget(self.sub_lbl)
+
+        # Summary strip
+        summary = QFrame()
+        summary.setFixedHeight(72)
+        summary.setStyleSheet("""
             QFrame {
-                background: rgba(43, 62, 80, 0.4);
+                background: rgba(43, 62, 80, 0.5);
                 border-radius: 12px;
-                border: 2px solid #4A5F7F;
+                border: 1.5px solid #4A5F7F;
             }
         """)
-        summary_layout = QHBoxLayout(self.summary_card)
-        summary_layout.setContentsMargins(20, 15, 20, 15)
-        summary_layout.setSpacing(40)
-        
-        # Total readings
-        self.total_readings_label = QLabel("0\nTotal Readings")
-        self.total_readings_label.setFont(QFont("Segoe UI", 12))
-        self.total_readings_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.total_readings_label.setStyleSheet("color: #FFFFFF; line-height: 1.5;")
-        summary_layout.addWidget(self.total_readings_label)
-        
-        # Separator
-        sep1 = QFrame()
-        sep1.setFrameShape(QFrame.Shape.VLine)
-        sep1.setStyleSheet("background: rgba(255, 255, 255, 0.2);")
-        sep1.setFixedWidth(2)
-        summary_layout.addWidget(sep1)
-        
-        # Profiles tracked
-        self.profiles_label = QLabel("0\nProfiles Tracked")
-        self.profiles_label.setFont(QFont("Segoe UI", 12))
-        self.profiles_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.profiles_label.setStyleSheet("color: #FFFFFF;")
-        summary_layout.addWidget(self.profiles_label)
-        
-        # Separator
-        sep2 = QFrame()
-        sep2.setFrameShape(QFrame.Shape.VLine)
-        sep2.setStyleSheet("background: rgba(255, 255, 255, 0.2);")
-        sep2.setFixedWidth(2)
-        summary_layout.addWidget(sep2)
-        
-        # Last updated
-        self.last_updated_label = QLabel("Never\nLast Updated")
-        self.last_updated_label.setFont(QFont("Segoe UI", 12))
-        self.last_updated_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.last_updated_label.setStyleSheet("color: #FFFFFF;")
-        summary_layout.addWidget(self.last_updated_label)
-        
-        content_layout.addWidget(self.summary_card)
+        sum_lay = QHBoxLayout(summary)
+        sum_lay.setContentsMargins(24, 0, 24, 0)
+        sum_lay.setSpacing(32)
 
-        # Graph visualization area
-        self.graph_card = QFrame()
-        self.graph_card.setFixedHeight(280)
-        self.graph_card.setStyleSheet("""
+        self.lbl_total    = self._summary_item("0", "Total Readings")
+        self.lbl_profiles = self._summary_item("0", "Profiles Tracked")
+        self.lbl_updated  = self._summary_item("Never", "Last Updated")
+
+        for w in (self.lbl_total, self._vsep(), self.lbl_profiles,
+                  self._vsep(), self.lbl_updated):
+            sum_lay.addWidget(w)
+        sum_lay.addStretch()
+        content_lay.addWidget(summary)
+
+        # Graph card
+        graph_card = QFrame()
+        graph_card.setMinimumHeight(260)
+        graph_card.setStyleSheet("""
             QFrame {
-                background: rgba(43, 62, 80, 0.6);
+                background: rgba(43, 62, 80, 0.55);
                 border-radius: 16px;
-                border: 2px solid #4A5F7F;
+                border: 1.5px solid #4A5F7F;
             }
         """)
-        
-        graph_layout = QVBoxLayout(self.graph_card)
-        graph_layout.setContentsMargins(15, 15, 15, 15)
-        
-        # Title for graph
-        graph_title = QLabel("Latest Water Parameters")
-        graph_title.setFont(QFont("Segoe UI", 11, QFont.Weight.Normal))
-        graph_title.setStyleSheet("color: #B8B8B8;")
-        graph_layout.addWidget(graph_title)
-        
-        # Bar graph widget
+        g_lay = QVBoxLayout(graph_card)
+        g_lay.setContentsMargins(18, 14, 18, 14)
+        g_lay.setSpacing(6)
+
+        g_title = QLabel("Latest Water Parameters")
+        g_title.setFont(QFont("Segoe UI", 11))
+        g_title.setStyleSheet("color: #9CA3AF;")
+        g_lay.addWidget(g_title)
+
         self.plot_widget = pg.PlotWidget()
-        self.plot_widget.setBackground((62, 78, 94, 100))
-        self.plot_widget.setLabel("left", "Value", color="#B8B8B8", **{"font-size": "10pt"})
+        self.plot_widget.setBackground((43, 62, 80, 80))
+        self.plot_widget.setLabel("left", "Value", color="#9CA3AF", **{"font-size": "9pt"})
         self.plot_widget.showGrid(x=False, y=True, alpha=0.2)
         self.plot_widget.setMouseEnabled(x=False, y=False)
-        self.plot_widget.getAxis('bottom').setTicks([[(0, 'pH'), (1, 'Temp'), (2, 'Ammonia')]])
-        self.plot_widget.getAxis('bottom').setStyle(tickTextOffset=10)
-        self.plot_widget.getAxis('bottom').setPen(color=(184, 184, 184))
-        self.plot_widget.getAxis('left').setPen(color=(184, 184, 184))
-        graph_layout.addWidget(self.plot_widget)
-        
-        content_layout.addWidget(self.graph_card)
-        
-        # Add spacing between graph and stats cards
-        content_layout.addSpacing(60)
+        self.plot_widget.getAxis("bottom").setTicks(
+            [[(0, "TAN"), (1, "pH"), (2, "Temp"), (3, "NH3")]])
+        self.plot_widget.getAxis("bottom").setStyle(tickTextOffset=8)
+        self.plot_widget.getAxis("bottom").setPen(color=(184, 184, 184))
+        self.plot_widget.getAxis("left").setPen(color=(184, 184, 184))
+        g_lay.addWidget(self.plot_widget)
+        content_lay.addWidget(graph_card)
 
-        # Stats cards in a row
-        stats_layout = QGridLayout()
-        stats_layout.setSpacing(30)
-        stats_layout.setContentsMargins(0, 20, 0, 0)
+        # Stat cards row
+        cards_lay = QGridLayout()
+        cards_lay.setSpacing(20)
 
-        self.ph_card = self.create_stat_card("--", "pH Level", "No data", "#7E87E1")
-        self.temp_card = self.create_stat_card("--", "Temperature", "No data", "#EF5350")
-        self.ammonia_card = self.create_stat_card("--", "Ammonia", "No data", "#26C6DA")
+        self.ph_card      = self._stat_card("--", "pH Level",     "No data", "#7E87E1")
+        self.temp_card    = self._stat_card("--", "Temperature",  "No data", "#EF5350")
+        self.nh3_card     = self._stat_card("--", "NH3 (mg/L)",   "No data", "#26C6DA")
+        self.toxicity_card = self._stat_card("--", "Toxicity",    "No data", "#F59E0B")
 
-        stats_layout.addWidget(self.ph_card, 0, 0)
-        stats_layout.addWidget(self.temp_card, 0, 1)
-        stats_layout.addWidget(self.ammonia_card, 0, 2)
+        cards_lay.addWidget(self.ph_card,       0, 0)
+        cards_lay.addWidget(self.temp_card,     0, 1)
+        cards_lay.addWidget(self.nh3_card,      0, 2)
+        cards_lay.addWidget(self.toxicity_card, 0, 3)
+        content_lay.addLayout(cards_lay)
 
-        content_layout.addLayout(stats_layout)
-        content_layout.addStretch()
+        content_lay.addStretch()
 
-        main_layout.addWidget(content_area, 1)
+        scroll_area.setWidget(content_widget)
+        root.addWidget(scroll_area, stretch=1)
 
         self.update_latest(self.manager.get_all())
 
-    def create_sidebar(self):
-        """Create the left sidebar with user info and navigation"""
+    # ----------------------------------------------------------------
+    # Sidebar
+    # ----------------------------------------------------------------
+
+    def _build_sidebar(self):
         sidebar = QFrame()
-        sidebar.setFixedWidth(200)
+        sidebar.setFixedWidth(210)
         sidebar.setStyleSheet("""
             QFrame {
                 background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                    stop:0 #293438,
-                    stop:1 #1D2429);
+                    stop:0 #1A2530, stop:1 #131C23);
                 border: none;
+                border-right: 1px solid rgba(255,255,255,0.06);
             }
         """)
+        lay = QVBoxLayout(sidebar)
+        lay.setContentsMargins(0, 24, 0, 24)
+        lay.setSpacing(0)
 
-        layout = QVBoxLayout(sidebar)
-        layout.setContentsMargins(0, 30, 0, 30)
-        layout.setSpacing(0)
-
-        # User profile section
-        user_container = QWidget()
-        user_container.setStyleSheet("background: transparent;")
-        user_layout = QHBoxLayout(user_container)
-        user_layout.setContentsMargins(20, 10, 20, 10)
-        
-        # Profile picture with default user icon
-        profile_pic = QLabel("👤")
-        profile_pic.setFixedSize(40, 40)
-        profile_pic.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        profile_pic.setFont(QFont("Segoe UI", 18))
-        profile_pic.setStyleSheet("""
-            QLabel {
-                background: #242C30;
-                border-radius: 20px;
-                border: 2px solid rgba(255, 255, 255, 0.2);
-                color: #FFFFFF;
-            }
+        # Logo row
+        logo_row = QHBoxLayout()
+        logo_row.setContentsMargins(20, 0, 20, 0)
+        logo_box = QLabel("T")
+        logo_box.setFixedSize(36, 36)
+        logo_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        logo_box.setFont(QFont("Segoe UI", 16, QFont.Weight.Bold))
+        logo_box.setStyleSheet("""
+            background: #1B6CA8; color: white;
+            border-radius: 8px;
         """)
-        user_layout.addWidget(profile_pic)
-        
-        # Username
-        username_label = QLabel(self.username)
-        username_label.setFont(QFont("Segoe UI", 11, QFont.Weight.Medium))
-        username_label.setStyleSheet("color: #FFFFFF;")
-        user_layout.addWidget(username_label)
-        
-        # Online indicator
-        online_dot = QLabel("●")
-        online_dot.setFont(QFont("Segoe UI", 10))
-        online_dot.setStyleSheet("color: #66BB6A;")
-        user_layout.addWidget(online_dot)
-        
-        layout.addWidget(user_container)
-        layout.addSpacing(20)
+        brand = QLabel("Traquarium")
+        brand.setFont(QFont("Segoe UI", 13, QFont.Weight.Bold))
+        brand.setStyleSheet("color: white;")
+        logo_row.addWidget(logo_box)
+        logo_row.addSpacing(10)
+        logo_row.addWidget(brand)
+        logo_row.addStretch()
+        lay.addLayout(logo_row)
 
-        # Navigation buttons
-        nav_buttons = [
-            ("", "Overview", 3),
-        ]
+        lay.addSpacing(24)
 
-        for icon, text, page_idx in nav_buttons:
-            btn = self.create_nav_button(icon, text, page_idx)
-            layout.addWidget(btn)
+        # User row
+        user_row = QHBoxLayout()
+        user_row.setContentsMargins(20, 8, 20, 8)
+        avatar = QLabel(self.username[0].upper() if self.username else "U")
+        avatar.setFixedSize(34, 34)
+        avatar.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        avatar.setFont(QFont("Segoe UI", 13, QFont.Weight.Bold))
+        avatar.setStyleSheet("""
+            background: #293438; color: white;
+            border-radius: 17px;
+            border: 1.5px solid rgba(255,255,255,0.2);
+        """)
+        uname = QLabel(self.username)
+        uname.setFont(QFont("Segoe UI", 11))
+        uname.setStyleSheet("color: #E8E8E8;")
+        dot = QLabel("online")
+        dot.setFont(QFont("Segoe UI", 8))
+        dot.setStyleSheet("color: #10B981;")
 
-        layout.addSpacing(30)
+        uv = QVBoxLayout()
+        uv.setSpacing(1)
+        uv.addWidget(uname)
+        uv.addWidget(dot)
 
-        # Add New Reading / Go to Input button (changes based on data)
+        user_row.addWidget(avatar)
+        user_row.addSpacing(8)
+        user_row.addLayout(uv)
+        user_row.addStretch()
+        lay.addLayout(user_row)
+
+        lay.addSpacing(16)
+
+        # Section label
+        sec = QLabel("NAVIGATION")
+        sec.setFont(QFont("Segoe UI", 8, QFont.Weight.Bold))
+        sec.setStyleSheet("color: #4A5F7F; letter-spacing: 2px; padding-left: 20px;")
+        lay.addWidget(sec)
+        lay.addSpacing(6)
+
+        for label, idx in [("Overview", 3), ("Input", 4), ("History", 5), ("Graph", 6)]:
+            btn = self._nav_btn(label, idx)
+            lay.addWidget(btn)
+
+        lay.addSpacing(20)
+
+        # Input shortcut button
         self.add_btn = QPushButton("+ Add New Reading")
-        self.add_btn.setFont(QFont("Segoe UI", 11, QFont.Weight.Medium))
-        self.add_btn.setFixedHeight(45)
+        self.add_btn.setFont(QFont("Segoe UI", 10, QFont.Weight.Medium))
+        self.add_btn.setFixedHeight(40)
         self.add_btn.setStyleSheet("""
             QPushButton {
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                    stop:0 #242C30,
-                    stop:1 #1D2429);
-                color: #FFFFFF;
-                border-radius: 10px;
-                border: none;
-                margin: 0 15px;
-                text-align: left;
-                padding-left: 15px;
-                outline: none;
+                background: #1B6CA8; color: white;
+                border: none; border-radius: 8px;
+                margin: 0 16px; text-align: left; padding-left: 14px;
             }
-            QPushButton:hover {
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                    stop:0 #293438,
-                    stop:1 #242C30);
-            }
-            QPushButton:pressed {
-                background: #0F1314;
-            }
-            QPushButton:focus {
-                outline: none;
-            }
+            QPushButton:hover { background: #1A5F96; }
         """)
         self.add_btn.clicked.connect(lambda: self.stacked_widget.setCurrentIndex(4))
         self.add_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        layout.addWidget(self.add_btn)
+        lay.addWidget(self.add_btn)
 
-        layout.addStretch()
-        
-        # Logout button
-        logout_btn = QPushButton("← Logout")
-        logout_btn.setFont(QFont("Segoe UI", 10, QFont.Weight.Normal))
-        logout_btn.setFixedHeight(40)
-        logout_btn.setStyleSheet("""
+        lay.addStretch()
+
+        # Bottom: tagline
+        tag = QLabel("Your tank data,\nyour decisions.")
+        tag.setFont(QFont("Segoe UI", 9))
+        tag.setStyleSheet("color: #4A5F7F; padding-left: 20px; padding-bottom: 8px;")
+        lay.addWidget(tag)
+
+        # Logout
+        logout = QPushButton("Logout")
+        logout.setFont(QFont("Segoe UI", 10))
+        logout.setFixedHeight(38)
+        logout.setStyleSheet("""
             QPushButton {
-                background: transparent;
-                color: #EF5350;
-                border: none;
-                border-top: 1px solid rgba(255, 255, 255, 0.1);
-                text-align: left;
-                padding-left: 24px;
+                background: transparent; color: #EF5350;
+                border: none; border-top: 1px solid rgba(255,255,255,0.07);
+                text-align: left; padding-left: 20px;
             }
-            QPushButton:hover {
-                background: rgba(239, 83, 80, 0.1);
-                color: #FF6B6B;
-            }
+            QPushButton:hover { background: rgba(239,83,80,0.1); color: #FF6B6B; }
         """)
-        logout_btn.clicked.connect(self.logout)
-        logout_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        layout.addWidget(logout_btn)
-        
-        # About Us button at the bottom
-        about_btn = QPushButton("? About Us")
-        about_btn.setFont(QFont("Segoe UI", 10, QFont.Weight.Normal))
-        about_btn.setFixedHeight(40)
-        about_btn.setStyleSheet("""
-            QPushButton {
-                background: transparent;
-                color: #9CA3AF;
-                border: none;
-                border-top: 1px solid rgba(255, 255, 255, 0.1);
-                text-align: left;
-                padding-left: 24px;
-            }
-            QPushButton:hover {
-                background: rgba(255, 255, 255, 0.05);
-                color: #FFFFFF;
-            }
-        """)
-        about_btn.clicked.connect(self.show_about)
-        about_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        layout.addWidget(about_btn)
-        
+        logout.clicked.connect(self.logout)
+        logout.setCursor(Qt.CursorShape.PointingHandCursor)
+        lay.addWidget(logout)
+
         return sidebar
-    
-    def show_about(self):
-        """Show About dialog"""
-        from ui.dialogs import AboutDialog
-        dialog = AboutDialog(self)
-        dialog.exec()
-    
-    def logout(self):
-        """Logout and return to login page"""
-        from PyQt6.QtWidgets import QMessageBox
-        
-        reply = QMessageBox.question(
-            self,
-            'Logout',
-            'Are you sure you want to logout?',
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-            QMessageBox.StandardButton.No
-        )
-        
-        if reply == QMessageBox.StandardButton.Yes:
-            # Clear login page fields
-            login_page = self.stacked_widget.widget(1)
-            if login_page:
-                login_page.username_input.clear()
-                login_page.password_input.clear()
-                login_page.feedback_label.clear()
-            
-            # Go back to login page
-            self.stacked_widget.setCurrentIndex(1)
 
-    def create_nav_button(self, icon, text, page_idx):
-        """Create a navigation button for the sidebar"""
-        btn = QPushButton(f"{icon}  {text}")
-        btn.setFont(QFont("Segoe UI", 11, QFont.Weight.Normal))
-        btn.setFixedHeight(50)
-        
-        is_active = (text == "Overview")
-        
-        if is_active:
-            btn.setStyleSheet("""
-                QPushButton {
-                    background: rgba(36, 44, 48, 0.5);
-                    color: #FFFFFF;
-                    border: none;
-                    border-left: 4px solid #242C30;
-                    text-align: left;
-                    padding-left: 20px;
-                }
-            """)
-        else:
-            btn.setStyleSheet("""
-                QPushButton {
-                    background: transparent;
-                    color: #B8B8B8;
-                    border: none;
-                    text-align: left;
-                    padding-left: 24px;
-                }
-                QPushButton:hover {
-                    background: rgba(255, 255, 255, 0.05);
-                    color: #FFFFFF;
-                }
-            """)
-        
+    def _nav_btn(self, label, page_idx):
+        btn = QPushButton(label)
+        btn.setFont(QFont("Segoe UI", 11))
+        btn.setFixedHeight(38)
+        btn.setStyleSheet("""
+            QPushButton {
+                background: transparent; color: #9CA3AF;
+                border: none; text-align: left;
+                padding-left: 20px; border-radius: 0;
+            }
+            QPushButton:hover { background: rgba(255,255,255,0.05); color: white; }
+        """)
+        btn.setCursor(Qt.CursorShape.PointingHandCursor)
         btn.clicked.connect(lambda: self.stacked_widget.setCurrentIndex(page_idx))
-        
-        # Only show pointer cursor if not the active page
-        if not is_active:
-            btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        
         return btn
 
-    def create_stat_card(self, value, label, detail, color):
-        """Create a clean circular statistics card widget with hover animation"""
+    # ----------------------------------------------------------------
+    # Summary helpers
+    # ----------------------------------------------------------------
+
+    @staticmethod
+    def _summary_item(value, label):
+        w = QWidget()
+        w.setStyleSheet("background: transparent;")
+        lay = QVBoxLayout(w)
+        lay.setContentsMargins(0, 0, 0, 0)
+        lay.setSpacing(2)
+        val = QLabel(value)
+        val.setFont(QFont("Segoe UI", 16, QFont.Weight.Bold))
+        val.setStyleSheet("color: white;")
+        val.setObjectName("val")
+        lbl = QLabel(label)
+        lbl.setFont(QFont("Segoe UI", 9))
+        lbl.setStyleSheet("color: #9CA3AF;")
+        lay.addWidget(val)
+        lay.addWidget(lbl)
+        return w
+
+    @staticmethod
+    def _vsep():
+        sep = QFrame()
+        sep.setFrameShape(QFrame.Shape.VLine)
+        sep.setFixedWidth(1)
+        sep.setStyleSheet("background: rgba(255,255,255,0.12); border: none;")
+        return sep
+
+    # ----------------------------------------------------------------
+    # Stat card
+    # ----------------------------------------------------------------
+
+    def _stat_card(self, value, label, detail, color):
         card = QFrame()
-        card.setFixedSize(180, 200)
-        card.setStyleSheet("""
-            QFrame {
-                background: transparent;
-                border: none;
-            }
-        """)
-        
-        # Store original position for animation
-        card.original_y = 0
-        card.is_hovered = False
-        
-        # Enable mouse tracking for hover effects
-        card.setMouseTracking(True)
-        
-        # Override enter/leave events for floating animation
-        def enterEvent(event):
-            card.is_hovered = True
-            # Move up by 10 pixels for floating effect
-            current_pos = card.pos()
-            card.move(current_pos.x(), current_pos.y() - 10)
-            card.setStyleSheet("""
-                QFrame {
-                    background: rgba(255, 255, 255, 0.08);
-                    border-radius: 15px;
-                }
-            """)
-        
-        def leaveEvent(event):
-            card.is_hovered = False
-            # Move back to original position
-            current_pos = card.pos()
-            card.move(current_pos.x(), current_pos.y() + 10)
-            card.setStyleSheet("""
-                QFrame {
-                    background: transparent;
-                    border: none;
-                }
-            """)
-        
-        card.enterEvent = enterEvent
-        card.leaveEvent = leaveEvent
-
-        layout = QVBoxLayout(card)
-        layout.setContentsMargins(10, 10, 10, 10)
-        layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.setSpacing(12)
-
-        # Circular progress container
-        circle_container = QFrame()
-        circle_container.setFixedSize(120, 120)
-        circle_container.setStyleSheet(f"""
+        card.setMinimumHeight(130)
+        card.setStyleSheet(f"""
             QFrame {{
-                background: qradialgradient(cx:0.5, cy:0.5, radius:0.5,
-                    fx:0.5, fy:0.5,
-                    stop:0 {color},
-                    stop:0.65 {color},
-                    stop:0.66 rgba(255, 255, 255, 0.08),
-                    stop:1 rgba(255, 255, 255, 0.03));
-                border-radius: 60px;
+                background: rgba(43, 62, 80, 0.55);
+                border-radius: 14px;
+                border: 1.5px solid #4A5F7F;
             }}
         """)
-        
-        circle_layout = QVBoxLayout(circle_container)
-        circle_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        
-        value_label = QLabel(value)
-        value_label.setFont(QFont("Segoe UI", 28, QFont.Weight.Bold))
-        value_label.setStyleSheet("color: #FFFFFF;")
-        value_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        value_label.setObjectName("value")
-        circle_layout.addWidget(value_label)
-        
-        layout.addWidget(circle_container, 0, Qt.AlignmentFlag.AlignCenter)
+        lay = QVBoxLayout(card)
+        lay.setContentsMargins(20, 18, 20, 18)
+        lay.setSpacing(6)
 
-        text_label = QLabel(label)
-        text_label.setFont(QFont("Segoe UI", 11, QFont.Weight.Medium))
-        text_label.setStyleSheet("color: #E8E8E8;")
-        text_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(text_label)
-        
-        detail_label = QLabel(detail)
-        detail_label.setFont(QFont("Segoe UI", 9, QFont.Weight.Normal))
-        detail_label.setStyleSheet("color: #808080;")
-        detail_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        detail_label.setObjectName("detail")
-        layout.addWidget(detail_label)
+        lbl = QLabel(label)
+        lbl.setFont(QFont("Segoe UI", 10))
+        lbl.setStyleSheet("color: #9CA3AF; background: transparent;")
+        lay.addWidget(lbl)
+
+        val = QLabel(value)
+        val.setFont(QFont("Segoe UI", 22, QFont.Weight.Bold))
+        val.setStyleSheet(f"color: {color}; background: transparent;")
+        val.setObjectName("value")
+        lay.addWidget(val)
+
+        det = QLabel(detail)
+        det.setFont(QFont("Segoe UI", 9))
+        det.setStyleSheet("color: #6B7280; background: transparent;")
+        det.setObjectName("detail")
+        lay.addWidget(det)
 
         return card
 
+    # ----------------------------------------------------------------
+    # Update
+    # ----------------------------------------------------------------
+
     def update_latest(self, readings):
-        """Update display with the latest saved reading and stats."""
         self.readings = readings
-        
+
         if not readings:
             self.plot_widget.clear()
-            # Update summary with no data
-            self.total_readings_label.setText("0\nTotal Readings")
-            self.profiles_label.setText("0\nProfiles Tracked")
-            self.last_updated_label.setText("Never\nLast Updated")
-            self.subtitle_label.setText("No readings yet. Add your first reading to get started!")
-            # Change button to "Add New Reading" when no data
+            self.lbl_total.findChild(QLabel,    "val").setText("0")
+            self.lbl_profiles.findChild(QLabel, "val").setText("0")
+            self.lbl_updated.findChild(QLabel,  "val").setText("Never")
+            self.sub_lbl.setText("No readings yet. Add your first reading to get started.")
             self.add_btn.setText("+ Add New Reading")
+            for card, val in [
+                (self.ph_card, "--"), (self.temp_card, "--"),
+                (self.nh3_card, "--"), (self.toxicity_card, "--"),
+            ]:
+                card.findChild(QLabel, "value").setText(val)
+                card.findChild(QLabel, "detail").setText("No data")
             return
 
-        # Update summary stats
-        total = len(readings)
-        unique_profiles = len(set(r.get("name", r.get("tank_name", "")) for r in readings))
-        
-        self.total_readings_label.setText(f"{total}\nTotal Readings")
-        self.profiles_label.setText(f"{unique_profiles}\nProfiles Tracked")
-        
-        # Format last updated time
-        latest = readings[-1]
+        total    = len(readings)
+        profiles = len(set(r.get("name", r.get("tank_name", "")) for r in readings))
+        latest   = readings[-1]
+
+        self.lbl_total.findChild(QLabel,    "val").setText(str(total))
+        self.lbl_profiles.findChild(QLabel, "val").setText(str(profiles))
+
         try:
-            last_time = datetime.strptime(latest.get("timestamp",""), "%Y-%m-%d %H:%M:%S")
-        except ValueError:
+            ts = latest.get("timestamp", "")
             try:
-                last_time = datetime.strptime(latest.get("timestamp",""), "%Y-%m-%d %H:%M")
+                dt = datetime.strptime(ts, "%Y-%m-%d %H:%M:%S")
             except ValueError:
-                last_time = datetime.now()
-        
-        time_str = last_time.strftime("%b %d, %I:%M %p")
-        self.last_updated_label.setText(f"{time_str}\nLast Updated")
-        self.subtitle_label.setText(f"Monitoring {unique_profiles} aquarium{'s' if unique_profiles != 1 else ''}")
-        
-        # Change button to "Go to Input" when there is data
-        self.add_btn.setText("→ Go to Input")
+                dt = datetime.strptime(ts, "%Y-%m-%d %H:%M")
+            self.lbl_updated.findChild(QLabel, "val").setText(
+                dt.strftime("%b %d, %I:%M %p"))
+        except Exception:
+            self.lbl_updated.findChild(QLabel, "val").setText("—")
 
-        # Update graph with latest reading only
-        ph   = float(latest.get("pH", latest.get("ph", 0)))
+        self.sub_lbl.setText(
+            f"Monitoring {profiles} aquarium{'s' if profiles != 1 else ''}")
+        self.add_btn.setText("Go to Input ->")
+
+        # Bar graph
+        tan  = float(latest.get("tan",  0))
+        ph   = float(latest.get("pH",   latest.get("ph",  0)))
         temp = float(latest.get("temperature", 0))
-        tan  = float(latest.get("tan", 0))
-        nh3  = float(latest.get("nh3", 0))
+        nh3  = float(latest.get("nh3",  0))
 
-        # Clear and create bar graph (TAN, pH, Temp, NH3)
         self.plot_widget.clear()
+        for i, (height, color) in enumerate([
+            (tan,  (56,  189, 248)),
+            (ph,   (126, 135, 225)),
+            (temp, (239, 83,  80)),
+            (nh3,  (239, 68,  68)),
+        ]):
+            self.plot_widget.addItem(
+                pg.BarGraphItem(x=[i], height=[height], width=0.6, brush=color))
 
-        x       = np.array([0, 1, 2, 3])
-        heights = np.array([tan, ph, temp, nh3])
-        colors  = [(56, 189, 248), (126, 135, 225), (239, 83, 80), (239, 68, 68)]
+        # Stat cards
+        tox = str(latest.get("toxicity", "—"))
+        tox_colors = {
+            "Safe":           "#10B981",
+            "Caution":        "#F59E0B",
+            "Critical Toxic": "#EF4444",
+        }
+        tc = tox_colors.get(tox, "#E8E8E8")
 
-        for i in range(4):
-            bar = pg.BarGraphItem(x=[x[i]], height=[heights[i]],
-                                  width=0.6, brush=colors[i])
-            self.plot_widget.addItem(bar)
-
-        # Update stats cards
-        if total > 1:
-            try:
-                first_date = datetime.strptime(readings[0].get("timestamp",""), "%Y-%m-%d %H:%M:%S")
-                last_date  = datetime.strptime(readings[-1].get("timestamp",""), "%Y-%m-%d %H:%M:%S")
-            except ValueError:
-                try:
-                    first_date = datetime.strptime(readings[0].get("timestamp",""), "%Y-%m-%d %H:%M")
-                    last_date  = datetime.strptime(readings[-1].get("timestamp",""), "%Y-%m-%d %H:%M")
-                except ValueError:
-                    first_date = last_date = datetime.now()
-            days = (last_date - first_date).days + 1
-        else:
-            days = 1
-
-        avg_ph   = sum(float(r.get("pH", r.get("ph", 0))) for r in readings) / total
-        avg_temp = sum(float(r.get("temperature", 0)) for r in readings) / total
-
-        self.update_stats(total, days, avg_ph, avg_temp)
-
-    def update_stats(self, total, days, avg_ph, avg_temp):
-        """Update statistics cards with latest reading data."""
-        if not self.readings:
-            return
-
-        latest = self.readings[-1]
-
-        # pH card
-        ph_val = latest.get("pH", latest.get("ph", "—"))
-        self.ph_card.findChild(QLabel, "value").setText(str(ph_val))
+        self.ph_card.findChild(QLabel, "value").setText(f"{ph:.2f}")
         self.ph_card.findChild(QLabel, "detail").setText("Latest reading")
 
-        # Temperature card
-        temp_val = latest.get("temperature", "—")
-        self.temp_card.findChild(QLabel, "value").setText(str(temp_val))
-        self.temp_card.findChild(QLabel, "detail").setText("°C")
+        self.temp_card.findChild(QLabel, "value").setText(f"{temp:.1f}")
+        self.temp_card.findChild(QLabel, "detail").setText("degrees C")
 
-        # NH3 card (was ammonia card)
-        nh3_val = latest.get("nh3", "—")
-        try:
-            nh3_display = f"{float(nh3_val):.4f}"
-        except (TypeError, ValueError):
-            nh3_display = str(nh3_val)
-        self.ammonia_card.findChild(QLabel, "value").setText(nh3_display)
-        tox = latest.get("toxicity", "")
-        self.ammonia_card.findChild(QLabel, "detail").setText(f"mg/L  {tox}")
+        self.nh3_card.findChild(QLabel, "value").setText(f"{nh3:.4f}")
+        self.nh3_card.findChild(QLabel, "detail").setText("mg/L")
+
+        self.toxicity_card.findChild(QLabel, "value").setStyleSheet(
+            f"color: {tc}; background: transparent; font-size: 14px; font-weight: bold;")
+        self.toxicity_card.findChild(QLabel, "value").setText(tox)
+        self.toxicity_card.findChild(QLabel, "detail").setText("Current level")
+
+    def update_stats(self, *args):
+        pass  # folded into update_latest
+
+    def logout(self):
+        parent = self.parentWidget().parentWidget()
+        if hasattr(parent, "current_user"):
+            parent.current_user = None
+            parent.manager      = None
+        self.stacked_widget.setCurrentIndex(1)
+
+    def show_about(self):
+        from ui.dialogs import AboutDialog
+        AboutDialog(self).exec()
+
+    def create_nav_button(self, *a):
+        pass  # legacy stub
+
+    def create_stat_card(self, *a):
+        pass  # legacy stub
 
     def paintEvent(self, event):
         from ui.helpers import PaintHelper

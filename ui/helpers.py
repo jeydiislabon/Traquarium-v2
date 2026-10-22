@@ -156,43 +156,43 @@ class WarningHelper:
 
         # --- pH ---
         if ph < 6.5:
-            warnings.append(("⚠ pH too low",
-                              "Add pH buffer or reduce CO₂",
+            warnings.append(("pH too low",
+                              "Add pH buffer or reduce CO2",
                               QColor("#E65100"), QColor("#FFF3E0")))
         elif ph > 8.0:
-            warnings.append(("⚠ pH too high",
+            warnings.append(("pH too high",
                               "Perform partial water change",
                               QColor("#E65100"), QColor("#FFF3E0")))
         else:
-            warnings.append(("✔ pH OK",
+            warnings.append(("pH OK",
                               "No immediate action required",
                               QColor("#2E7D32"), QColor("#E8F5E9")))
 
         # --- Temperature ---
         if temp < 20:
-            warnings.append(("❄ Temperature too low",
+            warnings.append(("Temperature too low",
                               "Increase heater temperature",
                               QColor("#0277BD"), QColor("#E3F2FD")))
         elif temp > 28:
-            warnings.append(("🔥 Temperature too high",
+            warnings.append(("Temperature too high",
                               "Improve ventilation or add chiller",
                               QColor("#C62828"), QColor("#FFEBEE")))
         else:
-            warnings.append(("✔ Temperature OK",
+            warnings.append(("Temperature OK",
                               "No immediate action required",
                               QColor("#2E7D32"), QColor("#E8F5E9")))
 
         # --- NH3 (computed un-ionized ammonia) ---
         if nh3 >= 0.05:
-            warnings.append(("☠ NH₃ CRITICAL TOXIC",
+            warnings.append(("NH3 CRITICAL TOXIC",
                               f"Emergency water change now! ({nh3:.4f} mg/L)",
                               QColor("#B71C1C"), QColor("#FFEBEE")))
         elif nh3 >= 0.02:
-            warnings.append(("⚠ NH₃ Caution",
+            warnings.append(("NH3 Caution",
                               f"Perform 25-30% water change. ({nh3:.4f} mg/L)",
                               QColor("#E65100"), QColor("#FFF3E0")))
         else:
-            warnings.append(("✔ NH₃ Safe",
+            warnings.append(("NH3 Safe",
                               f"Below 0.02 mg/L threshold. ({nh3:.4f} mg/L)",
                               QColor("#2E7D32"), QColor("#E8F5E9")))
 

@@ -8,25 +8,36 @@ from .styles import *
 
 class StrictDoubleValidator(QDoubleValidator):
     def validate(self, input_str, pos):
+        # Always allow empty or partial entry so user can type freely
         if not input_str or input_str in ['.', '-', '-.']:
             return (QDoubleValidator.State.Intermediate, input_str, pos)
-        
-        if len(input_str) > 1 and input_str[0] == '0' and input_str[1] != '.':
+
+        # Prevent leading zeros like "007"
+        if len(input_str) > 1 and input_str[0] == '0' and input_str[1] not in ('.', ):
             return (QDoubleValidator.State.Invalid, input_str, pos)
-        
+
+        # Limit decimal places
         if '.' in input_str:
             decimal_part = input_str.split('.')[1]
             if len(decimal_part) > self.decimals():
                 return (QDoubleValidator.State.Invalid, input_str, pos)
-        
+
         try:
             value = float(input_str)
-            if self.bottom() <= value <= self.top():
-                return (QDoubleValidator.State.Acceptable, input_str, pos)
-            else:
-                return (QDoubleValidator.State.Invalid, input_str, pos)
         except ValueError:
+            return (QDoubleValidator.State.Intermediate, input_str, pos)
+
+        # A partial number that is below the minimum is still Intermediate
+        # (e.g. typing "1" when min is 15 should not immediately block)
+        if value > self.top():
             return (QDoubleValidator.State.Invalid, input_str, pos)
+
+        # Only mark Acceptable once the value is in range
+        if self.bottom() <= value <= self.top():
+            return (QDoubleValidator.State.Acceptable, input_str, pos)
+
+        # Value is below minimum but could still be a partial entry
+        return (QDoubleValidator.State.Intermediate, input_str, pos)
 
 
 class ButtonFactory:
